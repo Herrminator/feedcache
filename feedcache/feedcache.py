@@ -8,6 +8,9 @@ from .common    import * # @UnusedWildImport
 from .constants import * # @UnusedWildImport
 from .constants import __version__
 
+VERSION_REQUESTS = f", using requests {requests_dl.requests.__version__}" if requests_dl else ""
+VERSION_STRING   = f"{__version__}{VERSION_REQUESTS}, Python {sys.version}"
+
 #-----------------------------------------------------------------------------
 def get_feed_logger(feed, cfg):
   lvl    = logging.DEBUG if cfg.verbose else logging.INFO
@@ -232,7 +235,7 @@ def main(argv=sys.argv[1:]):
   ap.add_argument("-f", "--force",     default=False, action="store_true")
   ap.add_argument("-v", "--verbose",   default=False, action="store_true")
   ap.add_argument("-d", "--dry-run",   default=False, action="store_true", help="Don't create output / state files")
-  ap.add_argument(      "--version",   default=False, action="version", version="%(prog)s "+__version__)
+  ap.add_argument(      "--version",   default=False, action="version", version="%(prog)s "+VERSION_STRING)
   ap.add_argument(      "--curl",      default="curl")
 
   args = ap.parse_args(argv)

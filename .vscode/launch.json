@@ -1,0 +1,90 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "windows": {
+                "env": {
+                    "BROWSER": "${env:USERPROFILE}\\Portable\\PortableApps\\GoogleChromePortable\\GoogleChromePortable.exe"
+                },
+            },
+            "justMyCode": false,
+        },
+        {
+            "name": "feedcache",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "feedcache",
+            "args": [
+                "--config=./feedcache.json",
+                "--outdir=./feeds",
+                "--tmpdir=./tmp",
+                "--verbose",
+            ],
+            "cwd": "${workspaceFolder}/tmp/test",
+            "windows": {
+                "env": { "REQUESTS_CA_BUNDLE": "${workspaceFolder}/tmp/test/feedcache_cacert.pem"}
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "unittest (all)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "unittest",
+            "args": [
+                "discover", "-b", "-v",
+                // see settings.json for unittests
+                "-t", ".",
+                "-s", ".",
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "unittest (single)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "unittest",
+            "args": [
+                "discover", "-b", "-v",
+                // see settings.json for unittests
+                "-t", ".",
+                "-s", ".",
+                "-k", "test_removal_and_delete"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "unittest (runner)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "feedcache.test",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            // https://stackoverflow.com/a/78284991/10545609
+            "name": "Debug Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": ["debug-test"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+    ]
+}

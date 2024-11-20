@@ -14,7 +14,9 @@ authors= [
 ]
 
 [project.optional-dependencies]
-requests = [ "requests" ]
+feedparser = [ "feedparser" ]
+requests   = [ "requests" ]
+all        = [ "requests", "feedparser" ]
 
 [project.scripts]
 feedcache = "feedcache.__main__:main"

@@ -11,7 +11,7 @@ def get_help():
 
 class CustomHook(MetadataHookInterface):
     def update(self, meta):
-        with open("README.md", "r") as fh, open("changelog.txt") as cl:
+        with open("README.md", "r") as fh, open("CHANGELOG.md") as cl:
             meta["readme"] = {
                 "content-type": "text/markdown",
                 "text": ( fh.read()

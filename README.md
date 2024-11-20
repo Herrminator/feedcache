@@ -10,6 +10,4 @@ static XML-files, accessible through a regular https-server.
 
 <usage>
 
-## Changelog
-
 <changelog>
