@@ -1,0 +1,8 @@
+/.fc*
+/Scripts
+/bin
+/Lib
+/lib
+/tmp
+/pyvenv.cfg
+**/__pycache__
