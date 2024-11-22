@@ -66,7 +66,7 @@ jobs:
           python -m coverage html
           python -m coverage report --fail-under=90
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: covreports
           path: tmp/**

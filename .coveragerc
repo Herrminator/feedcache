@@ -17,6 +17,8 @@ rules =
     "platform_system == 'Linux'":   linux-nocover
     "not is_installed('requests')": norequests-nocover
     "os_environ.get('FEEDCACHE_TEST_OFFLINE') == 'true'": offline-nocover
+    "os_environ.get('FEEDCACHE_TEST_OFFLINE') == 'true'": offline-nobranch
+    # ...though offline-nobranch really means offline-nocover
 
 [report]
 exclude_also =

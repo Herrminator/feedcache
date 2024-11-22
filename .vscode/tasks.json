@@ -2,6 +2,14 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+	"options": {
+		// "env": { "FEEDCACHE_TEST_OFFLINE": "true" } // just for testing...
+	},
+	"windows": {
+		"options": {
+			"env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
+		}
+	},
     "tasks": [
 		{
 			"type": "shell",
@@ -9,9 +17,6 @@
 			"command": "${workspaceFolder}/bin/python",
 			"windows": {
 				"command": "${workspaceFolder}/Scripts/python",
-				"options": {
-					"env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
-				}
 			},
 			"args": [ "-m", "coverage", "run", "--branch",  "-m", "unittest",
 			          "discover", "-b", "-v", "-s", ".", "-t", "." ],

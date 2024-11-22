@@ -43,7 +43,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
     sess = requests.Session()
     sess.cookies = cookies
 
-    if feed.url.startswith("file://"):
+    if feed.url.startswith("file://"): # pragma: offline-nobranch # GitHub CI doesn't have online access
       sess.mount("file://", LocalFileAdapter())
 
     rsp = sess.get(feed.url, headers=headers, timeout=timeout, proxies=feed.proxies)
@@ -66,7 +66,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
     log_response(log, feed, exc.response)
     log_error(log, feed, exc)
 
-  except requests.ConnectionError as exc: # TODO: get OS error code
+  except requests.ConnectionError as exc: # TODO: get OS error code # pragma: offline-nocover
     rc = getattr(exc, "errno", getattr(exc, "code", ERR_CONNECTION_FAILED))
     rc = rc if rc is not None else ERR_CONNECTION_FAILED
     errtext = "{0}: {1}".format(str(exc.__class__.__name__), str(exc))

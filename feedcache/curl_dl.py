@@ -7,7 +7,7 @@ CURL_MAN = None
 
 def curl_error(rc, cfg):
   global CURL_MAN
-  if CURL_MAN is None:
+  if CURL_MAN is None: # pragma: nobranch
     import subprocess
     result = subprocess.run([cfg.curl, "--manual"], stdout=subprocess.PIPE, universal_newlines=True)
     if result.returncode == 0:  CURL_MAN = result.stdout
