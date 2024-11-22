@@ -19,7 +19,7 @@ def curl_error(rc, cfg):
   if m: # pragma: nocover # either curl understands `--manual`...
     return m.group(1)
   else: # pragma: nocover # ... or not.
-    return "unkown error {0}".format(rc)
+    return "unknown error {0}".format(rc)
 
 def tmp_downloader(feed, cfg, state, logger=LOGGER):
   import subprocess

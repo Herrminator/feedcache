@@ -105,7 +105,7 @@ class TestCurlErrors(TestBase):
         self.set_config(data.MISSING_FEED_FILE)
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc, 37, files_expected=0, # see curl manual, EXIT CODES.
-                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(FILE could not read|unkn?own error 37)")) # Typo in curl manual :D
+                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(FILE could\s?n.t read|unknown error 37)"))
 
     @unittest.skipIf(IS_OFFLINE, "FEEDCACHE_TEST_OFFLINE=true")
     @redirected(stderr=True)
@@ -114,7 +114,7 @@ class TestCurlErrors(TestBase):
         self.set_config(data.INVALID_SERVER)
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc, 7, files_expected=0, # see curl manual, EXIT CODES.
-                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(Failed to connect to host|unkn?own error 7)")) # Typo in curl manual :D
+                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(Failed to connect to host|unknown error 7)"))
 
     @redirected(stderr=True)
     def test_no_downloader(self, stdout: io.StringIO=None, stderr: io.StringIO=None):

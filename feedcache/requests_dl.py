@@ -37,7 +37,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
 
   if cookies is not None and os.path.isfile(feed.cookies): cookies.load(feed.cookies)
 
-  rc, errtext, data = 0, "unkown error", None
+  rc, errtext, data = 0, "unknown error", None
 
   try:
     sess = requests.Session()
