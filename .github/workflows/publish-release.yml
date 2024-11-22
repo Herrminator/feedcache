@@ -47,7 +47,7 @@ jobs:
           name: ${{ steps.version.outputs.ref_name }}
           tag_name: ${{ github.ref }}
           body: feedcache ${{ steps.version.outputs.version }}
-          body_path: ./changelog.txt
+          body_path: ./CHANGELOG.md
           generate_release_notes: true
           files: |
             ./dist/feedcache-*.whl
