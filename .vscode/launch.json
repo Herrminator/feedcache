@@ -81,6 +81,16 @@
             "justMyCode": false
         },
         {
+            "name": "build wheel (debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "build",
+            "args": [ ".", "-o", "./tmp/dist" ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             // https://stackoverflow.com/a/78284991/10545609
             "name": "Debug Tests",
             "type": "debugpy",

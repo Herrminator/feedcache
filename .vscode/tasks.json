@@ -84,6 +84,19 @@
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiGreen" },
 			"problemMatcher": [],
 			"presentation": { "showReuseMessage": false },
-		}
+		},
+		{
+			"type": "shell",
+			"label": "build: wheel",
+			"command": "${workspaceFolder}/bin/python",
+			"windows": { "command": "${workspaceFolder}/Scripts/python"},
+			"args": [ "-m", "build", ".", "-o", "./tmp/dist", ],
+            "dependsOn": [  ],
+			"icon": { "id": "package", "color": "terminal.ansiBlue"},
+			"problemMatcher": [],
+			"presentation": {
+				"showReuseMessage": false,
+    		}
+		},
     ]
 }
