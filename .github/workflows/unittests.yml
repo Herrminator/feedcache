@@ -70,3 +70,4 @@ jobs:
         with:
           name: covreports
           path: tmp/**
+          include-hidden-files: true
