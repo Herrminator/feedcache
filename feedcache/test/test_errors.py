@@ -105,7 +105,7 @@ class TestCurlErrors(TestBase):
         self.set_config(data.MISSING_FEED_FILE)
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc, 37, files_expected=0, # see curl manual, EXIT CODES.
-                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(FILE could\s?n.t read|unknown error 37)"))
+                assert_overall=lambda: self.assertRegex(stderr.getvalue(), r"(FILE could\s?n.t read|unknown error 37)"))
 
     @unittest.skipIf(IS_OFFLINE, "FEEDCACHE_TEST_OFFLINE=true")
     @redirected(stderr=True)
