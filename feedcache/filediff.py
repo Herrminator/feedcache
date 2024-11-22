@@ -1,12 +1,12 @@
 import os
 
 #-----------------------------------------------------------------------------
-def diff_diff(left, right):
+def diff_diff(left, right): # pragma: nocover
   import subprocess
   result = subprocess.run([ "diff", left, right ], stdout=subprocess.DEVNULL)
   return result.returncode
 
-def difflib_diff(left, right):
+def difflib_diff(left, right): # pragma: nocover
   raise NotImplementedError("TODO")
   
 def filecmp_diff(left, right):
@@ -21,18 +21,18 @@ def normalize_CR(text):
 def diff(left, right, ldata=None, rdata=None, ignore=None):
   """ 0: equal, > 0 different, < 0 ignored differences """
   if     os.path.isfile(left) != os.path.isfile(right): return 1
-  if not os.path.isfile(left): return 1 # treat non-existant as different
+  if not os.path.isfile(left): return 1 # treat non-existant as different # pragma: nobranch
 
   if ignore is None:
     return differ(left, right)
 
   # compare content
-  if ldata is None:
+  if ldata is None: # pragma: nocover
     with open(left, encoding="utf-8")  as f: ldata = f.read()
-  if rdata is None:
+  if rdata is None: # pragma: nobranch
     with open(right, encoding="utf-8") as f: rdata = f.read()
 
-  if ldata == rdata: return 0
+  if ldata == rdata: return 0 # pragma: nobranch
 
   rdata, ldata = normalize_CR(ignore.sub("", ldata)), normalize_CR(ignore.sub("", rdata))
 

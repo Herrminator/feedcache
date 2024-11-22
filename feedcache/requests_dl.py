@@ -1,12 +1,14 @@
-import requests, time
+import requests, re, time
 
 from .common   import *
 from .constants import *
 
+FILE_ETAG_PATTERN = re.compile(r'W/"([\d.]+)"')
+
 def log_response(log, feed, rsp):
   req = rsp.request
   log.info("> GET {0}".format(feed.url))
-  if req:
+  if req: # pragma: nobranch
     for h in req.headers: log.info("> {0}: {1}".format(h, req.headers[h]))
 
   log.info("\n< {0} {1}".format(rsp.status_code, rsp.reason))
@@ -48,7 +50,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
 
     if rsp.ok and rsp.text:
       data = rsp.text
-      with open(feed.tmp, "w", encoding="utf-8") as tmp: tmp.write(rsp.text)
+      with open(feed.tmp, "w", encoding="utf-8", newline="\n") as tmp: tmp.write(rsp.text)
 
     rsp.raise_for_status()
     log_response(log, feed, rsp)
@@ -83,14 +85,21 @@ import io
 
 # https://stackoverflow.com/a/22989322/10545609
 class LocalFileAdapter(requests.adapters.HTTPAdapter):
-  def build_response_from_file(self, request):
+  def build_response_from_file(self, request: requests.Request):
       file_path : Path = Path.from_uri(request.url)
       if file_path.exists():
-        with open(file_path, 'rb') as file:
-            buff = bytearray(os.path.getsize(file_path))
-            file.readinto(buff)
-            resp = LocalFileAdapter.Resp(buff)
-            r = self.build_response(request, resp)
+        etag = request.headers.get("If-None-Match")
+        if etag is not None:
+          m = FILE_ETAG_PATTERN.match(etag)
+          if m: etag = float(m.group(1))
+        if etag is None or file_path.stat().st_mtime > etag:
+          with open(file_path, 'rb') as file:
+              buff = bytearray(os.path.getsize(file_path))
+              file.readinto(buff)
+        else:
+          buff = bytearray(b"")
+        resp = LocalFileAdapter.Resp(buff, headers={ "ETag": f'W/"{file_path.stat().st_mtime}"'})
+        r = self.build_response(request, resp)
       else:
         r = self.build_response(request, LocalFileAdapter.Resp(b"Not found!", 404))
       return r
@@ -115,18 +124,18 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
     @property
     def msg(self): return self
     def read(self, chunk_size, **kwargs): return io.BytesIO.read(self, chunk_size)
-    def info(self): return self
+    def info(self): return self # pragma: nobranch
     def get_all(self, name, default):
         result = self.headers.get(name)
         if not result: return default
         return [result] # pragma: nocover
-    def getheaders(self, name): return self.get_all(name, [])
-    def release_conn(self): self.close()
+    def getheaders(self, name): return self.get_all(name, []) # pragma: nobranch
+    def release_conn(self): self.close() # pragma: nobranch
 
-  try:
+  try: # TODO: REMOVEME # pragma: nocover
     # Only in Python 3.13+ 
     from_uri = Path.from_uri
-  except AttributeError: # TODO: REMOVEME # pragma: nocover
+  except AttributeError: # pragma: nocover
     # https://github.com/python/cpython/pull/107640/files
     @classmethod
     def from_uri(cls, uri):

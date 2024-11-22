@@ -9,6 +9,9 @@
 			"command": "${workspaceFolder}/bin/python",
 			"windows": {
 				"command": "${workspaceFolder}/Scripts/python",
+				"options": {
+					"env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
+				}
 			},
 			"args": [ "-m", "coverage", "run", "--branch",  "-m", "unittest",
 			          "discover", "-b", "-v", "-s", ".", "-t", "." ],

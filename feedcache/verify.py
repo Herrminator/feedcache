@@ -8,19 +8,16 @@ class VerifyException(Exception):
   @property
   def msg(self): return self.args[1]
   @property
-  def cause(self): return self.args[2]
+  def cause(self): return self.args[2] # pragma: nocover # unused for now
   @property
   def parsed(self): return self.args[3]
 
 def verify_feed(feed, data, cfg, logger=LOGGER):
   try: import feedparser
   except ImportError:
-    LOGGER.warn("feedparser module is not installed")
-    LOGGER.warn("Feed verifcation skipped for '{0}'.".format(feed.url))
+    LOGGER.warning("feedparser module is not installed")
+    LOGGER.warning("Feed verification skipped for '{0}'.".format(feed.url))
     return
-
-  if data is None: # feed should still be in tmpdir
-    with open(feed.tmp) as d: data = d.read()
 
   error, info = None, None
   try:

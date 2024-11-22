@@ -1,5 +1,5 @@
 #!/usr/bin/python3 -u
-import sys, os, re, shutil, argparse, threading, queue, json, time, logging
+import sys, os, re, shutil, argparse, threading, queue, json, time, logging, contextlib
 try:  from . import requests_dl
 except ImportError: requests_dl = None
 from . import (curl_dl, filediff)
@@ -80,7 +80,7 @@ def tmp_download_native(feed, cfg, state, logger=LOGGER):
 #-----------------------------------------------------------------------------
 def last(feed, state, ts=None):
   fs = state.get(feed.name)
-  if fs is None and ts is None: return 0.0
+  if fs is None and ts is None: return 0.0 # pragma: nobranch
   if ts is not None:
     if not isinstance(ts, str): ts = time.strftime(TS_FMT, time.localtime(ts))
     if fs is None: fs = State(); state[feed.name] = fs
@@ -109,7 +109,7 @@ def select_tmp_downloader(cfg):
   else:           tmp_downloader = tmp_download_native
 
   if cfg.downloader:
-    tmp_downloader = { "requests": requests_dl.tmp_downloader,
+    tmp_downloader = { "requests": getattr(requests_dl, "tmp_downloader", None),
                        "curl":     curl_dl.tmp_downloader
                      }.get(cfg.downloader, tmp_download_native)
   return tmp_downloader
@@ -129,23 +129,22 @@ def download(feed, cfg, state):
 
   logger, loghandler = get_feed_logger(feed, cfg)
 
-  downloader = select_tmp_downloader(cfg)
+  with contextlib.closing(loghandler):
+    downloader = select_tmp_downloader(cfg)
 
-  rc, err, data = downloader(feed, cfg, state, logger)
+    rc, err, data = downloader(feed, cfg, state, logger)
 
-  timing = time.time() - timing
+    timing = time.time() - timing
 
-  if feed.verify:
-    from . import verify
-    try:
-      verify.verify_feed(feed, data, cfg, logger)
-    except verify.VerifyException as exc:
-      rc, err = exc.code, exc.msg + (" {0!r}".format(exc.parsed) if exc.parsed else "")
+    if feed.verify:
+      from . import verify
+      try:
+        verify.verify_feed(feed, data, cfg, logger)
+      except verify.VerifyException as exc:
+        rc, err = exc.code, exc.msg + (" {0!r}".format(exc.parsed) if exc.parsed else "")
 
-  last(feed, state, time.time())
-  state[feed.name].rc = rc
-
-  loghandler.close()
+    last(feed, state, time.time())
+    state[feed.name].rc = rc
 
   status = finish_feed_files(rc, feed, cfg, err, dldata=data)
 
@@ -271,5 +270,5 @@ def main(argv=sys.argv[1:]):
 
   return 0
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: nocover
   sys.exit(main())

@@ -5,6 +5,7 @@ omit =
     feedcache/__init__.py
     feedcache/__main__.py
     feedcache/test/__main__.py
+    hatch_build.py
 branch = true
 data_file=tmp/.coverage.db3
 plugins =
@@ -14,7 +15,7 @@ plugins =
 rules =
     "platform_system == 'Windows'": windows-nocover
     "platform_system == 'Linux'":   linux-nocover
-    "'DBXMIRROR_DEVELOPER_TOKEN' not in os_environ": notoken-nocover
+    "not is_installed('requests')": norequests-nocover
 
 [report]
 exclude_also =

@@ -1,7 +1,8 @@
 # Change Log
 
-## 1.6.0 (2024-11-20):
+## 1.6.0 (2024-11-21):
   + Add unit tests
+  + Allow `file://`-URLs for feeds (mainly for tests).
   * Use a version number higher than the `feedcache` from PyPi.
 
 ## 0.1.6:

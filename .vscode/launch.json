@@ -47,6 +47,9 @@
                 "-s", ".",
             ],
             "cwd": "${workspaceFolder}",
+            "windows": {
+                "env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
+            },
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -60,8 +63,11 @@
                 // see settings.json for unittests
                 "-t", ".",
                 "-s", ".",
-                "-k", "test_removal_and_delete"
+                "-k", "test_skip_and_retry_failed"
             ],
+            "windows": {
+                "env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false

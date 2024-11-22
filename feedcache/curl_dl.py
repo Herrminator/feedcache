@@ -14,10 +14,12 @@ def curl_error(rc, cfg):
   import re
   if CURL_MAN is not None:
     m = re.search(r'EXIT CODES.*?^\s+{}\s+(.*?\n$)'.format(rc), CURL_MAN, re.M|re.S)
-  else:
+  else: # pragma: nocover # (always at least "")
     m = None
-  if m: return m.group(1)
-  else: return "unkown error {0}".format(rc)
+  if m: # pragma: nocover # either curl understands `--manual`...
+    return m.group(1)
+  else: # pragma: nocover # ... or not.
+    return "unkown error {0}".format(rc)
 
 def tmp_downloader(feed, cfg, state, logger=LOGGER):
   import subprocess
