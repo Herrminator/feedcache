@@ -80,7 +80,7 @@ jobs:
           echo "coverage_total=$TOTAL" >> $GITHUB_ENV
           echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
       - name: Coverage badge
-        uses: schneegans/dynamic-badges-action@v1.4.0
+        uses: schneegans/dynamic-badges-action@v1
         with:
           # GISTS_TOKEN is a classic GitHub personal access token with scope "gist".
           auth: ${{ secrets.GISTS_TOKEN }}
