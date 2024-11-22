@@ -1,9 +1,11 @@
 # Change Log
 
-## 1.6.0 (2024-11-21):
-  + Add unit tests
+## 1.6.0 (2024-11-22):
+  + Add unit tests.
   + Allow `file://`-URLs for feeds (mainly for tests).
-  * Use a version number higher than the `feedcache` from PyPi.
+  + Add GitHub actions for unit tests and releasing.
+  - Fix some minor bugs discovered by unit testing.
+  * Use a version number higher than the `feedcache` from PyPi. I'm not planning to publish...
 
 ## 0.1.6:
   * Avoid third-party log spamming by using a named logger.
