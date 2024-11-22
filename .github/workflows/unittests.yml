@@ -63,11 +63,32 @@ jobs:
       - name: Create coverage reports
         run: |
           python -m coverage xml
+          python -m coverage json
           python -m coverage html
           python -m coverage report --fail-under=90
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: covreports
+          name: coverage-reports
           path: tmp/**
           include-hidden-files: true
+
+      # <vanity>
+      - name: Store coverage total # https://nedbatchelder.com/blog/202209/making_a_coverage_badge.html
+        run: |
+          export TOTAL=$(python -c "import json;print(json.load(open('tmp/coverage.json'))['totals']['percent_covered_display'])")
+          echo "coverage_total=$TOTAL" >> $GITHUB_ENV
+          echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+      - name: Coverage badge
+        uses: schneegans/dynamic-badges-action@v1.4.0
+        with:
+          # GISTS_TOKEN is a classic GitHub personal access token with scope "gist".
+          auth: ${{ secrets.GISTS_TOKEN }}
+          gistID: 088b2618ff7abb97048977a4d632ed54
+          filename: feedcache-coverage-badge.json
+          label: Coverage
+          message: ${{ env.coverage_total }}%
+          minColorRange: 60
+          maxColorRange: 94
+          valColorRange: ${{ env.coverage_total }}
+      # </vanity>
