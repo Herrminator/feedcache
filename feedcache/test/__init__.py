@@ -17,6 +17,7 @@ TEST_ARGS       = TEST_ARGS_QUIET + [ "-vvv" ]
 
 CURL_INSTALLED = (shutil.which(TEST_CURL) is not None or Path(TEST_CURL).is_file())
 IS_WINDOWS     = (platform.system() == "Windows")
+IS_OFFLINE     = (os.environ.get("FEEDCACHE_TEST_OFFLINE") == "true")
 
 _real_import = builtins.__import__
 

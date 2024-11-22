@@ -13,7 +13,7 @@ on:
 env: # for scripts
   python_ver: "${{ vars.FEEDCACHE_PYTHON_VERSION || '3.12' }}"
   # temporarily disabled
-  # DBXMIRROR_DEVELOPER_TOKEN: "sl.AbC..."
+  FEEDCACHE_TEST_OFFLINE: "true"
 
 jobs:
   tests:

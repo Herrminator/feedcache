@@ -48,7 +48,8 @@
             ],
             "cwd": "${workspaceFolder}",
             "windows": {
-                "env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
+                // see .env.python
+                // "env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
             },
             "console": "integratedTerminal",
             "justMyCode": false
@@ -65,9 +66,6 @@
                 "-s", ".",
                 "-k", "test_skip_and_retry_failed"
             ],
-            "windows": {
-                "env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
-            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false

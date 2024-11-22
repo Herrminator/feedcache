@@ -1,7 +1,7 @@
 import sys, io, re, copy, builtins, json
 from contextlib import redirect_stderr
 from .  import (
-    TestBase, TEST_ARGS, TEST_FEEDS, TEST_STATE, TEST_CURL, CURL_INSTALLED, IS_WINDOWS,
+    TestBase, TEST_ARGS, TEST_FEEDS, TEST_STATE, TEST_CURL, CURL_INSTALLED, IS_WINDOWS, IS_OFFLINE,
     data, patch, mock_import_error, redirected,
     unittest, patch, MagicMock
 )
@@ -78,7 +78,8 @@ class TestErrors(TestBase):
         self.assertSimpleResult(rc, constants.ERR_UNKNOWN_EXCEPTION, files_expected=0, states_expected=0,
             assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(?s)Continuing after exception.*NotImplementedError"))
 
-    def test_invalid_server(self):
+    @unittest.skipIf(IS_OFFLINE, "FEEDCACHE_TEST_OFFLINE=true")
+    def test_invalid_server(self): # pragma: offline-nocover
         """ invalid server address """
         self.set_config(data.INVALID_SERVER)
         rc = feedcache.main(TEST_ARGS)
@@ -106,8 +107,9 @@ class TestCurlErrors(TestBase):
         self.assertSimpleResult(rc, 37, files_expected=0, # see curl manual, EXIT CODES.
                 assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(FILE could not read|unkn?own error 37)")) # Typo in curl manual :D
 
+    @unittest.skipIf(IS_OFFLINE, "FEEDCACHE_TEST_OFFLINE=true")
     @redirected(stderr=True)
-    def test_invalid_server(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_invalid_server(self, stdout: io.StringIO=None, stderr: io.StringIO=None): # pragma: offline-nocover
         """ invalid server address """
         self.set_config(data.INVALID_SERVER)
         rc = feedcache.main(TEST_ARGS)

@@ -16,6 +16,7 @@ rules =
     "platform_system == 'Windows'": windows-nocover
     "platform_system == 'Linux'":   linux-nocover
     "not is_installed('requests')": norequests-nocover
+    "os_environ.get('FEEDCACHE_TEST_OFFLINE') == 'true'": offline-nocover
 
 [report]
 exclude_also =
