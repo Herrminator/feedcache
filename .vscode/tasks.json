@@ -42,6 +42,19 @@
 		},
 		{
 			"type": "shell",
+			"label": "coverage: coverage.json",
+			"command": "${workspaceFolder}/bin/python",
+			"windows": { "command": "${workspaceFolder}/Scripts/python"},
+			"args": [ "-m", "coverage", "json", ],
+            "dependsOn": [ "generate coverage db" ],
+			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
+			"problemMatcher": [],
+			"presentation": {
+				"showReuseMessage": false,
+    		}
+		},
+		{
+			"type": "shell",
 			"label": "coverage: coverage.html",
 			"command": "${workspaceFolder}/bin/python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python" },
@@ -51,8 +64,22 @@
 			"presentation": { "showReuseMessage": false },
 		},
 		{
+			"type": "shell",
+			"label": "coverage: report",
+			"command": "${workspaceFolder}/bin/python",
+			"windows": { "command": "${workspaceFolder}/Scripts/python"},
+			"args": [ "-m", "coverage", "report", "--sort=cover" ],
+            "dependsOn": [ "generate coverage db" ],
+			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
+			"problemMatcher": [],
+			"presentation": {
+				"showReuseMessage": false,
+    		}
+		},
+		{
 			"label": "coverage: create reports",
-			"dependsOn": [ "coverage: run", "coverage: coverage.xml", "coverage: coverage.html" ],
+			"dependsOn": [ "coverage: run", "coverage: coverage.xml", "coverage: coverage.json",
+						   "coverage: coverage.html", "coverage: report" ],
 			"dependsOrder": "sequence",
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiGreen" },
 			"problemMatcher": [],

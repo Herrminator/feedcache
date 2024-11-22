@@ -28,5 +28,8 @@ exclude_also =
 [xml]
 output=tmp/coverage.xml
 
+[json]
+output=tmp/coverage.json
+
 [html]
 directory=tmp/coverage.html
