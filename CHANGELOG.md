@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.6.1 (beta1 status)
+  - [ ] Unit tests for online feeds
+  - [X] Unit tests for intervals (using `freezegun`).
+  - [X] Package test runner as extra (`pip install feedcache[tests]`).
+  - [ ] Make requests module obligatory, remove cURL code and all those awkward unit tests for that.
+  - [ ] Proper class structure for main module
+  - [ ] Use `async` instead of threads?
+  - [ ] Replace `str.format(...)` with format strings
+  - [ ] Experiment with an HTTP server for tests (e.g. `pytest-httpserver`) or properly  
+        mocking `requests` (e.g. `requests-mock`) instead of local files.
+  - [ ] ...
+
 ## 1.6.0 (2024-11-22):
   + Add unit tests.
   + Allow `file://`-URLs for feeds (mainly for tests).

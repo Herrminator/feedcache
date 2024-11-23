@@ -31,11 +31,13 @@ jobs:
         with:
           python-version: ${{ vars.FEEDCACHE_PYTHON_VERSION }}
 
-      - name: Create Python wheel
+      - name: Create Python wheel and RELEASE.md
         # https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
         run: |
           python -m pip install --user --break-system-packages --no-cache build
           python -m build
+          # Get the last two CHANELOG.md entries
+          python -c 'import re; print(re.match(r"(?sm)^(#\s.*?^##\s.*?^##\s.*?)\s*##", open("./CHANGELOG.md").read()).group(1))' > ./RELEASE.md
 
       - name: Create Release
         # don't forget to set the permissions for action here:
@@ -47,7 +49,7 @@ jobs:
           name: ${{ steps.version.outputs.ref_name }}
           tag_name: ${{ github.ref }}
           body: feedcache ${{ steps.version.outputs.version }}
-          body_path: ./CHANGELOG.md
+          body_path: ./RELEASE.md
           generate_release_notes: true
           files: |
             ./dist/feedcache-*.whl
