@@ -42,7 +42,7 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
       - name: Install dependencies
-        run: python -m pip install --user --break-system-packages --no-cache ".[all]"
+        run: python -m pip install --user --break-system-packages --no-cache ".[tests]"
       - name: Run unit tests
         run: python -m unittest discover -b -v
 
@@ -57,7 +57,7 @@ jobs:
         with:
           python-version: ${{ vars.FEEDCACHE_PYTHON_VERSION || '3.12' }}
       - name: Install dependencies
-        run: python -m pip install --user --break-system-packages --no-cache ".[all]" -r requirements.dev.txt
+        run: python -m pip install --user --break-system-packages --no-cache ".[tests]"
       - name: Run unit test coverage
         run: python -m coverage run -m unittest discover -b -v
       - name: Create coverage reports
