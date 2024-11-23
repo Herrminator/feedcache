@@ -66,7 +66,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
     log_response(log, feed, exc.response)
     log_error(log, feed, exc)
 
-  except requests.ConnectionError as exc:
+  except requests.ConnectionError as exc: # pragma: offline-nocover
     rc = getattr(exc, "errno", getattr(exc, "code", ERR_CONNECTION_FAILED))
     rc = rc if rc is not None else ERR_CONNECTION_FAILED
     errtext = "{0}: {1}".format(str(exc.__class__.__name__), str(exc))

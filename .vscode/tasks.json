@@ -68,7 +68,7 @@
 			"label": "coverage: report",
 			"command": "${workspaceFolder}/bin/python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
-			"args": [ "-m", "coverage", "report", "--sort=cover" ],
+			"args": [ "-m", "coverage", "report", "--sort=-cover" ],
             "dependsOn": [ "generate coverage db" ],
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
 			"problemMatcher": [],
