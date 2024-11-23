@@ -16,6 +16,7 @@ rules =
     "platform_system == 'Windows'": windows-nocover
     "platform_system == 'Linux'":   linux-nocover
     "not is_installed('requests')": norequests-nocover
+    "sys_version_info >= (3, 13)": py-gte-313-nocover
     "os_environ.get('FEEDCACHE_TEST_OFFLINE') == 'true'": offline-nocover
     "os_environ.get('FEEDCACHE_TEST_OFFLINE') == 'true'": offline-nobranch
     # ...though offline-nobranch really means offline-nocover

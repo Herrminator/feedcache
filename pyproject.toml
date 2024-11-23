@@ -17,9 +17,11 @@ authors= [
 feedparser = [ "feedparser" ]
 requests   = [ "requests" ]
 all        = [ "requests", "feedparser" ]
+tests      = [ "requests", "feedparser", "freezegun", "coverage", "coverage-conditional-plugin" ]
 
 [project.scripts]
 feedcache = "feedcache.__main__:main"
+feedcache_tests = "feedcache.test:Run"
 
 [project.urls]
 Repository = "https://github.com/Herrminator/feedcache.git"
@@ -33,3 +35,6 @@ path = "feedcache/constants.py"
 [tool.hatch.build]
 
 [tool.hatch.metadata.hooks.custom]
+
+[tool.hatch.build.targets.wheel.force-include]
+".coveragerc" = "feedcache/.coveragerc"

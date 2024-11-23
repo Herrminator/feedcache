@@ -11,6 +11,12 @@ To avoid blocking its batch update process with slow feeds, we decided
 to cache some of the slowest (and most error-prone) feeds as local
 static XML-files, accessible through a regular https-server.
 
+## Installation
+
+Use either `pip` or `pipx` to install `feedcache`: 
+`pip install feedcache[all]@git+https://github.com/Herrminator/feedcache.git`
+
+
 ## Help
 
 Please see the [command line help](./feedcache-help.md).

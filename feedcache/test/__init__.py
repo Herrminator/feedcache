@@ -131,3 +131,20 @@ def setUpModule():
 
 def tearDownModule():
     pass
+
+class Run(unittest.TestProgram): # pragma: nocover
+    try: import freezegun # check dependencies
+    except ImportError: freezegun = None
+    else:
+        # "import * only allowed at module level". Why?
+        from .test_00_smoketest import SmokeTest
+        from .test_feedcache import TestFeedcache, TestCurl
+        # TODO: from .test_online import TestOnline
+        from .test_errors import TestErrors, TestCurlErrors, TestCoverage
+    
+    def __init__(self, feedcache_coverage=False, *args, **kwargs):
+        if self.freezegun is None:
+            print("feedcache_tests is missing some dependencies.\n    Please re-install with `pip install feedcache[tests]` or `pipx install feedcache[tests]`.", file=sys.stderr)
+            sys.exit(2)
+        kwargs.pop("module", None)
+        super().__init__(module=self, *args, **kwargs)

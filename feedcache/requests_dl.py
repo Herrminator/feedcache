@@ -66,7 +66,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
     log_response(log, feed, exc.response)
     log_error(log, feed, exc)
 
-  except requests.ConnectionError as exc: # TODO: get OS error code # pragma: offline-nocover
+  except requests.ConnectionError as exc:
     rc = getattr(exc, "errno", getattr(exc, "code", ERR_CONNECTION_FAILED))
     rc = rc if rc is not None else ERR_CONNECTION_FAILED
     errtext = "{0}: {1}".format(str(exc.__class__.__name__), str(exc))
@@ -132,10 +132,9 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
     def getheaders(self, name): return self.get_all(name, []) # pragma: nobranch
     def release_conn(self): self.close() # pragma: nobranch
 
-  try: # TODO: REMOVEME # pragma: nocover
-    # Only in Python 3.13+ 
+  try: # REMOVEME # Only in Python 3.13+ 
     from_uri = Path.from_uri
-  except AttributeError: # pragma: nocover
+  except AttributeError: # pragma: py-gte-313-nocover
     # https://github.com/python/cpython/pull/107640/files
     @classmethod
     def from_uri(cls, uri):

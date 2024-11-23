@@ -133,6 +133,13 @@ class TestCoverage(TestBase):
         self.set_config(data.EMPTY_FEED)
         self.data.feedlist, self.data.disabled = None, False
 
+        with self.subTest("helper modules / hacks"):
+            from .. import requests_dl # make sure, our `pathlib`-hack is loaded
+            from pathlib import Path
+            uri = TEST_STATE.as_uri()
+            with self.assertRaisesRegex(ValueError, "file:"): Path.from_uri(str(TEST_STATE))
+            with self.assertRaisesRegex(ValueError, "absolute"): Path.from_uri("file:./relative")
+
         with self.subTest("lets get 100%"):
             feeds : list[common.Feed] = feedcache.load_feeds(self.data)
             self.assertRegex(str(feeds[0]), f"^Feed<.*{re.escape(feeds[0].name)}.*>$")
