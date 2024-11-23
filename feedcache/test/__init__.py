@@ -1,4 +1,4 @@
-import sys, io, os, unittest, builtins, json, shutil, copy, functools, logging, platform
+import sys, io, os, unittest, builtins, json, shutil, copy, functools, logging, platform, time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 from contextlib import redirect_stdout, redirect_stderr
@@ -46,6 +46,9 @@ class TestBase(unittest.TestCase):
             rss = feed.pop("_data", {})
             if rss.get("file"):
                 with open(rss["file"], "w") as f: f.write(rss.get("content", ""))
+                # make sure, filetime is set to current (i.e. freezegun-) time
+                now = time.time()
+                os.utime(rss["file"], (now, now))
         with open(TEST_CONFIG, "w") as f:
             json.dump(data, f)
 
@@ -119,7 +122,7 @@ def redirected(test_func=None, *, stdout=None, stderr=None):
                 rc = f(self, stdout=rstdout if stdout else None, stderr=rstderr if stderr else None, *args, *kwargs)
             return rc
         return decorated
-    if test_func: # pragma: nocover
+    if test_func: # pragma: nocover # only, if @redirect is used without parameters - but that wouldn't make sense for now
         return decorator(test_func)
     return decorator
 

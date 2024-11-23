@@ -1,5 +1,6 @@
 build
 coverage
 coverage-conditional-plugin
+freezegun
 requests
 feedparser

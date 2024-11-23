@@ -1,12 +1,21 @@
 import os, io, time, copy
 from contextlib import redirect_stdout
+from datetime   import datetime, timedelta
 from .  import (
     TestBase, TEST_ARGS, TEST_ARGS_QUIET, TEST_FEEDS, TEST_STATE, TEST_TMP, TEST_CURL,
     unittest, patch,
     data, json, setUpModule, tearDownModule, redirected,
     CURL_INSTALLED, IS_WINDOWS
 )
+from freezegun     import freeze_time, config as freezegun_config
+from freezegun.api import FrozenDateTimeFactory
+
 from .. import feedcache, common
+
+# I hope, this won't hurt ;) But most of our code runs in threads
+# TODO: REMOVEME: Maybe, once we refactored the code to asyncio?
+fg_ignore = [ i for i in freezegun_config.DEFAULT_IGNORE_LIST if i != "threading" ]
+freezegun_config.configure(default_ignore_list=fg_ignore)
 
 req_dl_send = feedcache.requests_dl.LocalFileAdapter.send
 def send_without_etag(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
@@ -18,19 +27,23 @@ class TestFeedcache(TestBase):
     def test_empty_config(self):
         """ Empty config is ignored """
         self.set_config(data.EMPTY)
+
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc, files_expected=0)
 
     def test_empty_feed(self):
         """ Empty feeds are ok """
         self.set_config(data.EMPTY_FEED)
+
         rc = feedcache.main(TEST_ARGS_QUIET + ["--verify"])
         self.assertSimpleResult(rc)
 
     @redirected(stderr=True)
-    def test_unchanged(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    @freeze_time(timedelta(minutes=-15), as_kwarg="frozen") # otherwise, it's UTC
+    def test_unchanged(self, stdout: io.StringIO=None, stderr: io.StringIO=None, frozen: FrozenDateTimeFactory=None):
         """ Unchanged feeds are not updated """
         self.set_config(data.EMPTY_FEED_WITH_FORCE)
+
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc,
                 assert_overall=[
@@ -38,9 +51,10 @@ class TestFeedcache(TestBase):
                     lambda: self.assertNotRegex(stderr.getvalue(), r"\sunchanged:\s"),
                 ])
         stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
-        time.sleep(0.1)
-        for f in self.data.feeds:
-            os.utime(f._data.file)
+        # avoid not "downloading" local file
+        frozen.tick(timedelta(minutes=15)); now = time.time()
+        for f in self.data.feeds: os.utime(f._data.file, (now, now))
+
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc,
                 assert_overall=[
@@ -56,8 +70,10 @@ class TestFeedcache(TestBase):
     def test_unchanged_quiet(self):
         """ Unchanged feeds are not updated and not kept """
         self.set_config(data.EMPTY_FEED_WITH_FORCE)
+
         rc = feedcache.main(TEST_ARGS_QUIET)
         self.assertSimpleResult(rc)
+
         rc = feedcache.main(TEST_ARGS_QUIET)
         self.assertSimpleResult(rc,
                 assert_feed=[
@@ -99,9 +115,12 @@ class TestFeedcache(TestBase):
                     ])
 
     @redirected(stderr=True)
-    def test_skip_current(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    @freeze_time(as_kwarg="frozen")
+    def test_interval(self, stdout: io.StringIO=None, stderr: io.StringIO=None, frozen: FrozenDateTimeFactory=None):
         """ Feeds are skipped within their interval """
         self.set_config(data.EMPTY_FEED_WITH_INTERVAL)
+        interval = self.data.feeds[0].interval * 60.0
+
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc,
                 assert_overall=[
@@ -109,54 +128,83 @@ class TestFeedcache(TestBase):
                     lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"),
                 ])
         stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
-        # is skipped during interval...
-        rc = feedcache.main(TEST_ARGS)
-        self.assertSimpleResult(rc,
-                assert_overall=[
-                    lambda: self.assertNotRegex(stderr.getvalue(), r"\sdownloaded:\s"),
-                    lambda: self.assertRegex(stderr.getvalue(), r"\sSkipping\s"),
-                ],
-                assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
+
+        frozen.tick(interval - 2 * common.EPS)
+
+        with self.subTest("within interval"):
+            # is skipped during interval...
+            rc = feedcache.main(TEST_ARGS)
+            self.assertSimpleResult(rc,
+                    assert_overall=[
+                        lambda: self.assertNotRegex(stderr.getvalue(), r"\sdownloaded:\s"),
+                        lambda: self.assertRegex(stderr.getvalue(), r"\sSkipping\s"),
+                    ],
+                    assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
         stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
-        # ...unless the `--force` is used. But then the mighty ETag prevents download
-        rc = feedcache.main(TEST_ARGS + ["--force"])
-        self.assertSimpleResult(rc,
-                assert_overall=[
-                    lambda: self.assertRegex(stderr.getvalue(), r"\snot downloaded:\s"),
-                    lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"),
-                ],
-                assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
+
+        with self.subTest("with force"):
+            # ...unless the `--force` is used. But then the mighty ETag prevents download
+            rc = feedcache.main(TEST_ARGS + ["--force"])
+            self.assertSimpleResult(rc,
+                    assert_overall=[
+                        lambda: self.assertRegex(stderr.getvalue(), r"\snot downloaded:\s"),
+                        lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"),
+                    ],
+                    assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
+
+        frozen.tick(interval - common.EPS + 1)
+
+        with self.subTest("interval expired"):
+            # ...or the interval. But still, the mighty ETag prevents download
+            rc = feedcache.main(TEST_ARGS)
+            self.assertSimpleResult(rc,
+                    assert_overall=[
+                        lambda: self.assertRegex(stderr.getvalue(), r"\snot downloaded:\s"),
+                        lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"),
+                    ],
+                    assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
+
 
     @redirected(stderr=True)
-    def test_skip_and_retry_failed(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    @freeze_time(as_kwarg="frozen")
+    @patch("requests.Session", name="mock_session")
+    def test_skip_and_retry_failed(self, mock_session, stdout: io.StringIO=None, stderr: io.StringIO=None, frozen: FrozenDateTimeFactory=None):
         """ Failed feeds are skipped within their interval """
-        with patch("requests.Session") as mock_session:
-            mock_session.side_effect = InterruptedError(42)
+        mock_session.side_effect = InterruptedError(42)
+        self.set_config(data.EMPTY_FEED_WITH_INTERVAL)
+        rc = feedcache.main(TEST_ARGS)
+        self.assertSimpleResult(rc, files_expected=0, feed_rc_expected=common.ERR_UNKNOWN_EXCEPTION,
+                assert_overall=lambda: self.assertRegex(stderr.getvalue(), r"\sInterruptedError:\s"),
+                assert_feed=lambda _name, state: self.assertEqual(common.ERR_UNKNOWN_EXCEPTION, state["rc"]))
+        stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
+
+        with self.subTest("skipping failed"):
+            # is skipped during interval...
+            rc = feedcache.main(TEST_ARGS)
+            self.assertSimpleResult(rc, files_expected=0, feed_rc_expected=common.ERR_UNKNOWN_EXCEPTION,
+                    assert_overall=lambda: self.assertRegex(stderr.getvalue(), r"\sSkipping\s"))
+        stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
+
+        with self.subTest("retry flag set"):
+            # ...unless retry is set
+            cfg = copy.deepcopy(data.EMPTY_FEED_WITH_INTERVAL)
+            for f in cfg["feeds"]: f["retry"] = True
+
+            self.set_config(cfg)
+            rc = feedcache.main(TEST_ARGS)
+            self.assertSimpleResult(rc, files_expected=0, feed_rc_expected=common.ERR_UNKNOWN_EXCEPTION,
+                    assert_overall=lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"))
+        stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
+
+        with self.subTest("interval expired"):
+            # ...or the interval expired
+            frozen.tick(self.data.feeds[0].interval * 60.0)
+
             self.set_config(data.EMPTY_FEED_WITH_INTERVAL)
             rc = feedcache.main(TEST_ARGS)
             self.assertSimpleResult(rc, files_expected=0, feed_rc_expected=common.ERR_UNKNOWN_EXCEPTION,
-                    assert_overall=lambda: self.assertRegex(stderr.getvalue(), r"\sInterruptedError:\s"),
-                    assert_feed=lambda _name, state: self.assertEqual(common.ERR_UNKNOWN_EXCEPTION, state["rc"]))
+                    assert_overall=lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"))
         stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
-        # is skipped during interval...
-        rc = feedcache.main(TEST_ARGS)
-        self.assertSimpleResult(rc, files_expected=0, feed_rc_expected=common.ERR_UNKNOWN_EXCEPTION,
-                assert_overall=[
-                    lambda: self.assertNotRegex(stderr.getvalue(), r"\sdownloaded:\s"),
-                    lambda: self.assertRegex(stderr.getvalue(), r"\sSkipping\s"),
-                ])
-        stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
-        # ...unless retry is set
-        cfg = copy.deepcopy(data.EMPTY_FEED_WITH_INTERVAL)
-        for f in cfg["feeds"]: f["retry"] = True
-        self.set_config(cfg)
-        rc = feedcache.main(TEST_ARGS)
-        self.assertSimpleResult(rc,
-                assert_overall=[
-                    lambda: self.assertRegex(stderr.getvalue(), r":\s+downloaded:\s"),
-                    lambda: self.assertNotRegex(stderr.getvalue(), r"\sSkipping\s"),
-                ],
-                assert_feed=lambda _name, state: self.assertEqual(0, state["rc"]))
 
     @redirected(stderr=True)
     def test_modified(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
