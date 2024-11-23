@@ -44,7 +44,11 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --user --break-system-packages --no-cache ".[tests]"
       - name: Run unit tests
-        run: python -m unittest discover -b -v
+        run: |
+          python -m unittest discover -b -v
+          # as long, as they only take 0.7s ;)
+          echo "### Unit Tests $(python --version)" >> $GITHUB_STEP_SUMMARY
+          python -m unittest discover -b -q >> $GITHUB_STEP_SUMMARY
 
   coverage:
     needs: tests
