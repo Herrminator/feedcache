@@ -48,7 +48,7 @@ jobs:
           python -m unittest discover -b -v
           # as long, as they only take 0.7s ;)
           echo "### Unit Tests $(python --version)" >> $GITHUB_STEP_SUMMARY
-          python -m unittest discover -b -q >> $GITHUB_STEP_SUMMARY
+          python -m unittest discover -b -q >> $GITHUB_STEP_SUMMARY 2>&1
 
   coverage:
     needs: tests
