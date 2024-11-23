@@ -62,10 +62,11 @@ jobs:
         run: python -m coverage run -m unittest discover -b -v
       - name: Create coverage reports
         run: |
+          echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
           python -m coverage xml
           python -m coverage json
           python -m coverage html
-          python -m coverage report --fail-under=90
+          python -m coverage report --fail-under=90 --format=markdown | tee -a $GITHUB_STEP_SUMMARY
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
@@ -78,7 +79,6 @@ jobs:
         run: |
           export TOTAL=$(python -c "import json;print(json.load(open('tmp/coverage.json'))['totals']['percent_covered_display'])")
           echo "coverage_total=$TOTAL" >> $GITHUB_ENV
-          echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
       - name: Coverage badge
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
