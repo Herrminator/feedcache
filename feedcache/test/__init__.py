@@ -139,7 +139,7 @@ class Run(unittest.TestProgram): # pragma: nocover
     else:
         # "import * only allowed at module level". Why?
         from .test_00_smoketest import SmokeTest
-        from .test_feedcache import TestFeedcache, TestCurl
+        from .test_feedcache import TestFeedcache, TestCurl, TestParallel
         # TODO: from .test_online import TestOnline
         from .test_errors import TestErrors, TestCurlErrors, TestCoverage
     

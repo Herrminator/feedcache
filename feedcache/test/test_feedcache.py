@@ -3,7 +3,7 @@ from contextlib import redirect_stdout
 from datetime   import datetime, timedelta
 from .  import (
     TestBase, TEST_ARGS, TEST_ARGS_QUIET, TEST_FEEDS, TEST_STATE, TEST_TMP, TEST_CURL,
-    unittest, patch,
+    unittest, patch, MagicMock,
     data, json, setUpModule, tearDownModule, redirected,
     CURL_INSTALLED, IS_WINDOWS
 )
@@ -268,3 +268,47 @@ class TestCurl(TestBase):
         self.set_config(data.EMPTY_FEED_WITH_CURL)
         rc = feedcache.main(TEST_ARGS)
         self.assertSimpleResult(rc)
+
+@patch.object(feedcache, "download", name="mock_download")
+class TestParallel(TestBase):
+    NUM_FEEDS       = 10
+    NUM_WORKERS     = 5
+    DELAY           = 0.1
+    SAMPLE          = data.MISSING_FEED_FILE["feeds"][0]
+    EXPECTED_FACTOR = float(NUM_WORKERS) / float(NUM_FEEDS) * 1.333 # probably even less
+
+    feedcache_download = feedcache.download
+
+    def setUp(self):
+        super().setUp()
+
+        config = { "feeds": [] }
+        for i in range(self.NUM_FEEDS):
+            feed = copy.deepcopy(self.SAMPLE)
+            feed["name"] = f"parallel.{i:02d}.atom"
+            config["feeds"] += [ feed ]
+        self.set_config(config)
+
+    def init_mock(self, mock_download: MagicMock):
+        mock_download.side_effect = self._download
+
+    def _download(self, *args, **kwargs):
+        time.sleep(self.DELAY)
+        return TestParallel.feedcache_download(*args, **kwargs)
+
+    def run_threads(self, threads, min_time, max_time, mock_download):
+        start = time.monotonic()
+        self.init_mock(mock_download)
+        rc = feedcache.main(TEST_ARGS + [f"--parallel={threads}"])
+        self.assertSimpleResult(rc, 404, files_expected=0) # we don't care about the result here...
+        stop = time.monotonic()
+        self.assertGreaterEqual(stop - start, min_time)
+        self.assertLessEqual(stop - start, max_time)
+
+    def test_single_thread(self, mock_download: MagicMock):
+        """ single thread: time > sum(times) """
+        self.run_threads(1, self.NUM_FEEDS * self.DELAY, self.NUM_FEEDS * self.DELAY * 2.0, mock_download)
+
+    def test_multi_thread(self, mock_download: MagicMock):
+        """ multiple threads: time <= sum(times) * 0.666 """
+        self.run_threads(self.NUM_WORKERS, 0.0, self.NUM_FEEDS * self.DELAY * self.EXPECTED_FACTOR, mock_download)
