@@ -5,6 +5,9 @@
 	"options": {
 		// "env": { "FEEDCACHE_TEST_OFFLINE": "true" } // just for testing...
 	},
+	"linux": {
+		"options": { "env": {"PATH": "${workspaceFolder}/bin:${env:PATH}"}}
+	},
 	"windows": {
 		"options": {
 			"env": { "FEEDCACHE_TEST_CURL": "${env:USERPROFILE}\\Util\\Internet\\curl\\bin\\curl.exe"}
