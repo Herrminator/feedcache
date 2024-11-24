@@ -67,6 +67,7 @@ INVALID_SERVER = {
         {
           "name": "invalid.server.atom",
           "url": "https://254.0.0.42:6917/no-server.rss",
+          "timeout": 2,
         },
     ]
 }

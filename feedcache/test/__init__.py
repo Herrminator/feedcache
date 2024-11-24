@@ -57,6 +57,7 @@ class TestBase(unittest.TestCase):
                            assert_overall : list[callable]=[], assert_feed=[], state_file_expected=True):
         if files_expected is None: files_expected = len(self.data.get("feeds", []))
         if states_expected is None: states_expected = len(self.data.get("feeds", []))
+        if not isinstance(feed_rc_expected, (list, tuple)): feed_rc_expected = [ feed_rc_expected ]
         if assert_overall and not isinstance(assert_overall, Iterable): assert_overall = [ assert_overall ]
         if assert_feed    and not isinstance(assert_feed,    Iterable): assert_feed    = [ assert_feed ]
         self.assertEqual(rc_expected, rc)
@@ -71,7 +72,7 @@ class TestBase(unittest.TestCase):
             state : dict = json.load(f)
             self.assertEqual(states_expected, len(state))
             for name, feed in state.items():
-                self.assertEqual(feed_rc_expected, feed["rc"])
+                self.assertIn(feed["rc"], feed_rc_expected)
                 for assrt in assert_feed:
                     assrt(name, feed)
 

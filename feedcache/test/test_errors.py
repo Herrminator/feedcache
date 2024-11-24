@@ -5,7 +5,7 @@ from .  import (
     data, patch, mock_import_error, redirected,
     unittest, patch, MagicMock
 )
-from .. import feedcache, constants
+from .. import feedcache, constants, common
 
 class TestErrors(TestBase):
     def test_missing_config(self):
@@ -113,8 +113,8 @@ class TestCurlErrors(TestBase):
         """ invalid server address """
         self.set_config(data.INVALID_SERVER)
         rc = feedcache.main(TEST_ARGS)
-        self.assertSimpleResult(rc, 7, files_expected=0, # see curl manual, EXIT CODES.
-                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(Failed to connect to host|unknown error 7)"))
+        self.assertSimpleResult(rc, [7, 28], files_expected=0, # see curl manual, EXIT CODES.
+                assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(Failed to connect to host|Operation timeout|unknown error (7|28))"))
 
     @redirected(stderr=True)
     def test_no_downloader(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
