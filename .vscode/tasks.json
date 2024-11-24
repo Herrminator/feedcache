@@ -14,10 +14,8 @@
 		{
 			"type": "shell",
 			"label": "coverage: run",
-			"command": "${workspaceFolder}/bin/python",
-			"windows": {
-				"command": "${workspaceFolder}/Scripts/python",
-			},
+			"command": "python",
+			"windows": { "command": "${workspaceFolder}/Scripts/python", },
 			"args": [ "-m", "coverage", "run", "--branch",  "-m", "unittest",
 			          "discover", "-b", "-v", "-s", ".", "-t", "." ],
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
@@ -30,7 +28,7 @@
 		{
 			"type": "shell",
 			"label": "coverage: coverage.xml",
-			"command": "${workspaceFolder}/bin/python",
+			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "coverage", "xml", ],
             "dependsOn": [ "generate coverage db" ],
@@ -43,7 +41,7 @@
 		{
 			"type": "shell",
 			"label": "coverage: coverage.json",
-			"command": "${workspaceFolder}/bin/python",
+			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "coverage", "json", ],
             "dependsOn": [ "generate coverage db" ],
@@ -56,7 +54,7 @@
 		{
 			"type": "shell",
 			"label": "coverage: coverage.html",
-			"command": "${workspaceFolder}/bin/python",
+			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python" },
 			"args": [ "-m", "coverage", "html" ],
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow" },
@@ -66,7 +64,7 @@
 		{
 			"type": "shell",
 			"label": "coverage: report",
-			"command": "${workspaceFolder}/bin/python",
+			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "coverage", "report", "--sort=-cover" ],
             "dependsOn": [ "generate coverage db" ],
@@ -88,7 +86,7 @@
 		{
 			"type": "shell",
 			"label": "build: wheel",
-			"command": "${workspaceFolder}/bin/python",
+			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "build", ".", "-o", "./tmp/dist", ],
             "dependsOn": [  ],
@@ -98,5 +96,17 @@
 				"showReuseMessage": false,
     		}
 		},
+		{
+			"type": "shell",
+			"label": "cleanup: test data",
+			"command": "rm", "args": [ "-r", "${workspaceFolder}/feedcache/test/data/output", ],
+			"windows": { "command": "rmdir", "args": [ "/s", "/q", "${workspaceFolder}\\feedcache\\test\\data\\output"] },
+            "dependsOn": [  ],
+			"icon": { "id": "stop", "color": "terminal.ansiRed"},
+			"problemMatcher": [],
+			"presentation": {
+				"showReuseMessage": false,
+    		}
+		}
     ]
 }

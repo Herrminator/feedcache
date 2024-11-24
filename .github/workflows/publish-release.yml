@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pip install --user --break-system-packages --no-cache build
           python -m build
-          # Get the last two CHANELOG.md entries
+          # Get the last two CHANGELOG.md entries
           python -c 'import re; print(re.match(r"(?sm)^(#\s.*?^##\s.*?^##\s.*?)\s*##", open("./CHANGELOG.md").read()).group(1))' > ./RELEASE.md
 
       - name: Create Release
