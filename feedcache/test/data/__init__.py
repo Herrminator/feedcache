@@ -5,16 +5,16 @@ from .  import rss
 EMPTY = {}
 
 EMPTY_FEED = {
-    "feeds": [
-        {
-          "name": "empty.feed.atom",
-          "url": (TEST_TMP / "empty.rss").as_uri(),
-          "_data": {
-            "file": (TEST_TMP / "empty.rss"),
-            "content": rss.EMPTY_RSS,
-          }
-        },
-    ]
+        "feeds": [
+                {
+                    "name": "empty.feed.atom",
+                    "url": (TEST_TMP / "empty.rss").as_uri(),
+                    "_data": {
+                        "file": (TEST_TMP / "empty.rss"),
+                        "content": rss.EMPTY_RSS,
+                    }
+                },
+        ]
 }
 
 EMPTY_FEED_WITH_INTERVAL = deepcopy(EMPTY_FEED)
@@ -36,25 +36,25 @@ EMPTY_FEED_WITH_NATIVE_DL = deepcopy(EMPTY_FEED)
 EMPTY_FEED_WITH_NATIVE_DL["downloader"] = "native"
 
 MISSING_FEED_FILE = {
-    "feeds": [
-        {
-          "name": "missing.feed.atom",
-          "url": f"file:///{'C:' if IS_WINDOWS else '' }/this-feed-does-not-exist-i-hope.rss", # ??? 'C:' makes path absolute on windows!
-        },
-    ]
+        "feeds": [
+            {
+                "name": "missing.feed.atom",
+                "url": f"file:///{'C:' if IS_WINDOWS else '' }/this-feed-does-not-exist-i-hope.rss", # ??? 'C:' makes path absolute on windows!
+            },
+        ]
 }
 
 INVALID_FEED = {
-    "feeds": [
-        {
-          "name": "invalid.feed.atom",
-          "url": (TEST_TMP / "invalid.rss").as_uri(),
-          "_data": {
-            "file": (TEST_TMP / "invalid.rss"),
-            "content": rss.INVALID_RSS,
-          }
-        },
-    ]
+        "feeds": [
+            {
+                "name": "invalid.feed.atom",
+                "url": (TEST_TMP / "invalid.rss").as_uri(),
+                "_data": {
+                    "file": (TEST_TMP / "invalid.rss"),
+                    "content": rss.INVALID_RSS,
+                }
+            },
+        ]
 }
 
 
@@ -63,12 +63,11 @@ SIMPLE_TEST_1 = {
 }
 
 INVALID_SERVER = {
-    "feeds": [
-        {
-          "name": "invalid.server.atom",
-          "url": "https://254.0.0.42:6917/no-server.rss",
-          "timeout": 2,
-        },
-    ]
+        "feeds": [
+            {
+                "name": "invalid.server.atom",
+                "url": "https://254.0.0.42:6917/no-server.rss",
+                "timeout": 2,
+            },
+        ]
 }
-

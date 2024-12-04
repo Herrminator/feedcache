@@ -2,38 +2,38 @@ import os
 
 #-----------------------------------------------------------------------------
 def diff_diff(left, right): # pragma: nocover
-  import subprocess
-  result = subprocess.run([ "diff", left, right ], stdout=subprocess.DEVNULL)
-  return result.returncode
+    import subprocess
+    result = subprocess.run([ "diff", left, right ], stdout=subprocess.DEVNULL)
+    return result.returncode
 
 def difflib_diff(left, right): # pragma: nocover
-  raise NotImplementedError("TODO")
-  
+    raise NotImplementedError("TODO")
+    
 def filecmp_diff(left, right):
-  import filecmp
-  return 0 if filecmp.cmp(left, right, shallow=False) else 1
-  
+    import filecmp
+    return 0 if filecmp.cmp(left, right, shallow=False) else 1
+    
 differ = filecmp_diff
 
 def normalize_CR(text):
-  return text.replace('\r\n', '\n').replace('\r', '\n')
+    return text.replace('\r\n', '\n').replace('\r', '\n')
 
 def diff(left, right, ldata=None, rdata=None, ignore=None):
-  """ 0: equal, > 0 different, < 0 ignored differences """
-  if     os.path.isfile(left) != os.path.isfile(right): return 1
-  if not os.path.isfile(left): return 1 # treat non-existant as different # pragma: nobranch
+    """ 0: equal, > 0 different, < 0 ignored differences """
+    if     os.path.isfile(left) != os.path.isfile(right): return 1
+    if not os.path.isfile(left): return 1 # treat non-existant as different # pragma: nobranch
 
-  if ignore is None:
-    return differ(left, right)
+    if ignore is None:
+        return differ(left, right)
 
-  # compare content
-  if ldata is None: # pragma: nocover
-    with open(left, encoding="utf-8")  as f: ldata = f.read()
-  if rdata is None: # pragma: nobranch
-    with open(right, encoding="utf-8") as f: rdata = f.read()
+    # compare content
+    if ldata is None: # pragma: nocover
+        with open(left, encoding="utf-8")  as f: ldata = f.read()
+    if rdata is None: # pragma: nobranch
+        with open(right, encoding="utf-8") as f: rdata = f.read()
 
-  if ldata == rdata: return 0 # pragma: nobranch
+    if ldata == rdata: return 0 # pragma: nobranch
 
-  rdata, ldata = normalize_CR(ignore.sub("", ldata)), normalize_CR(ignore.sub("", rdata))
+    rdata, ldata = normalize_CR(ignore.sub("", ldata)), normalize_CR(ignore.sub("", rdata))
 
-  return -1 if ldata == rdata else 1
+    return -1 if ldata == rdata else 1
