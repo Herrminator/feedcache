@@ -1,8 +1,10 @@
 #!/usr/bin/python3 -u
 import sys, os, re, shutil, argparse, threading, queue, json, time, logging, contextlib
+from types import FunctionType
 try:  from . import requests_dl
 except ImportError: requests_dl = None
 from . import (curl_dl, filediff)
+from typing import Callable, List, Optional, Tuple, Union
 
 from .common    import * # @UnusedWildImport
 from .constants import * # @UnusedWildImport
@@ -72,13 +74,13 @@ def finish_feed_files(rc, feed, cfg, err_text, dldata=None):
 #-----------------------------------------------------------------------------
 # Nevermind
 #-----------------------------------------------------------------------------
-def tmp_download_native(feed, cfg, state, logger=LOGGER):
+def tmp_download_native(feed: Feed, cfg: Config, state: State, logger: Optional[logging.Logger]=LOGGER) -> Tuple[int, str, Optional[str]]:
     raise NotImplementedError("No downloader available. Please install Python requests or curl.")
 
 #-----------------------------------------------------------------------------
 # feed state handling
 #-----------------------------------------------------------------------------
-def last(feed, state, ts=None):
+def last(feed: Feed, state: State, ts: Union[str,float,None]=None):
     fs = state.get(feed.name)
     if fs is None and ts is None: return 0.0 # pragma: nobranch
     if ts is not None:
@@ -93,7 +95,7 @@ def last(feed, state, ts=None):
 def age(feed, state):
     return time.time() - last(feed, state)
 
-def current(feed, cfg, state):
+def current(feed: Feed, cfg, state):
     if cfg.force: return False
     if state.get(feed.name) is None: return False
     if state[feed.name].rc != 0 and feed.retry: return False
@@ -102,7 +104,8 @@ def current(feed, cfg, state):
 #-----------------------------------------------------------------------------
 # we always prefer the requests module, but commandline curl is OK
 #-----------------------------------------------------------------------------
-def select_tmp_downloader(cfg):
+def select_tmp_downloader(cfg: Config) -> DownloaderFunc:
+    tmp_downloader: DownloaderFunc
     # select default downloader
     if requests_dl: tmp_downloader = requests_dl.tmp_downloader
     elif cfg.curl:  tmp_downloader = curl_dl.tmp_downloader
@@ -117,7 +120,7 @@ def select_tmp_downloader(cfg):
 #-----------------------------------------------------------------------------
 # Download wrapper
 #-----------------------------------------------------------------------------
-def download(feed, cfg, state):
+def download(feed: Feed, cfg: Config, state: State):
 
     if current(feed, cfg, state):
         info('Skipping    {0.url}, next {1}'.format(feed, time.strftime("%H:%M:%S", time.localtime(last(feed, state)+feed.interval*60-EPS))))
@@ -156,7 +159,7 @@ def download(feed, cfg, state):
 #-----------------------------------------------------------------------------
 # Threads
 #-----------------------------------------------------------------------------
-def worker_thread(queue, cfg, state):
+def worker_thread(queue: queue.Queue[Optional[Feed]], cfg: Config, state: State) -> None:
     while True:
         feed = queue.get()
         if feed is None: break
@@ -168,21 +171,21 @@ def worker_thread(queue, cfg, state):
         finally:
             queue.task_done()
 
-def start_threads(queue, cfg, state):
+def start_threads(queue: queue.Queue[Optional[Feed]], cfg: Config, state: State) -> List[threading.Thread]:
     threads = []
     for _ in range(cfg.parallel):
         threads += [ threading.Thread(target=worker_thread, args=(queue, cfg, state)) ]
         threads[-1].start()
     return threads
 
-def stop_threads(queue, threads):
+def stop_threads(queue: queue.Queue[Optional[Feed]], threads: List[threading.Thread]) -> None:
     for _ in range(len(threads)): queue.put(None)
     for t in threads:            t.join()
 
 #-----------------------------------------------------------------------------
 # config / state
 #-----------------------------------------------------------------------------
-def load_feeds(cfg):
+def load_feeds(cfg: Config) -> List[Feed]:
     feeds = []
     
     for f in cfg.get("feeds", []):
@@ -200,21 +203,21 @@ def load_feeds(cfg):
                                         proxies=f.get("proxies", cfg.proxies)) ]
     return feeds
 
-def load_state(cfg):
+def load_state(cfg: Config) -> State:
     statefile = os.path.join(cfg.tmpdir, "feedcache.state.json")
     if os.path.isfile(statefile):
         with open(statefile) as sf: state = json.load(sf, object_pairs_hook=State)
     else: state = State()
     return state
 
-def save_state(cfg, state):
+def save_state(cfg: Config, state: State) -> None:
     if not cfg.dry_run:
         statefile = os.path.join(cfg.tmpdir, "feedcache.state.json")
         with open(statefile, "w") as sf:
             json.dump(state, sf, indent=2)
 
 
-def update_config(cfg, args):
+def update_config(cfg: Config, args: argparse.Namespace) -> None:
     for name, val in vars(args).items():
         cfg[name] = val if val is not None else cfg.get(name, CFG_DEFAULTS.get(name))
 
@@ -240,11 +243,11 @@ def main(argv=sys.argv[1:]):
     args = ap.parse_args(argv)
 
     logging.basicConfig(format=LOGFMT, style="{")
-    logging.getLogger().handlers[0].formatter.default_time_format = LOGDATE # s. Python manual 16.6.4 (Formatter Objects)
+    logging.getLogger().handlers[0].formatter.default_time_format = LOGDATE # s. Python manual 16.6.4 (Formatter Objects) # type: ignore[reportOptionalMemberAccess]
     LOGGER.setLevel(logging.DEBUG if args.verbose else logging.INFO)
 
     with open(args.config) as config:
-        cfg = json.load(config, object_pairs_hook=Config)
+        cfg: Config = json.load(config, object_pairs_hook=Config)
 
     update_config(cfg, args)
 

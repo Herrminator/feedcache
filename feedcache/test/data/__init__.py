@@ -1,10 +1,11 @@
 from copy import deepcopy
+from typing import Any, Dict, List, Union
 from .. import TEST_TMP, IS_WINDOWS
 from .  import rss
 
 EMPTY = {}
 
-EMPTY_FEED = {
+EMPTY_FEED: Dict[str, Any] = {
         "feeds": [
                 {
                     "name": "empty.feed.atom",
@@ -14,7 +15,7 @@ EMPTY_FEED = {
                         "content": rss.EMPTY_RSS,
                     }
                 },
-        ]
+        ],
 }
 
 EMPTY_FEED_WITH_INTERVAL = deepcopy(EMPTY_FEED)

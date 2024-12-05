@@ -1,6 +1,7 @@
 import os, io, time, copy
 from contextlib import redirect_stdout
 from datetime   import datetime, timedelta
+from typing import Callable
 from .  import (
     TestBase, TEST_ARGS, TEST_ARGS_QUIET, TEST_FEEDS, TEST_STATE, TEST_TMP, TEST_CURL,
     unittest, patch, MagicMock,
@@ -40,7 +41,7 @@ class TestFeedcache(TestBase):
 
     @redirected(stderr=True)
     @freeze_time(timedelta(minutes=-15), as_kwarg="frozen") # otherwise, it's UTC
-    def test_unchanged(self, stdout: io.StringIO=None, stderr: io.StringIO=None, frozen: FrozenDateTimeFactory=None):
+    def test_unchanged(self, stdout: io.StringIO, stderr: io.StringIO, frozen: FrozenDateTimeFactory):
         """ Unchanged feeds are not updated """
         self.set_config(data.EMPTY_FEED_WITH_FORCE)
 
@@ -82,7 +83,7 @@ class TestFeedcache(TestBase):
                 ])
 
     @redirected(stderr=True)
-    def test_not_downloaded(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_not_downloaded(self, stdout: io.StringIO, stderr: io.StringIO):
         """ Matching ETags are not downloaded """
         self.set_config(data.EMPTY_FEED)
         rc = feedcache.main(TEST_ARGS)
@@ -95,7 +96,7 @@ class TestFeedcache(TestBase):
                 assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
 
     @redirected(stderr=True)
-    def test_etag_disappeared(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_etag_disappeared(self, stdout: io.StringIO, stderr: io.StringIO):
         """ ETag ist removed from state file """
 
         self.set_config(data.EMPTY_FEED)
@@ -116,7 +117,7 @@ class TestFeedcache(TestBase):
 
     @redirected(stderr=True)
     @freeze_time(as_kwarg="frozen")
-    def test_interval(self, stdout: io.StringIO=None, stderr: io.StringIO=None, frozen: FrozenDateTimeFactory=None):
+    def test_interval(self, stdout: io.StringIO, stderr: io.StringIO, frozen: FrozenDateTimeFactory):
         """ Feeds are skipped within their interval """
         self.set_config(data.EMPTY_FEED_WITH_INTERVAL)
         interval = self.data.feeds[0].interval * 60.0
@@ -168,7 +169,7 @@ class TestFeedcache(TestBase):
     @redirected(stderr=True)
     @freeze_time(as_kwarg="frozen")
     @patch("requests.Session", name="mock_session")
-    def test_skip_and_retry_failed(self, mock_session, stdout: io.StringIO=None, stderr: io.StringIO=None, frozen: FrozenDateTimeFactory=None):
+    def test_skip_and_retry_failed(self, mock_session, stdout: io.StringIO, stderr: io.StringIO, frozen: FrozenDateTimeFactory):
         """ Failed feeds are skipped within their interval """
         mock_session.side_effect = InterruptedError(42)
         self.set_config(data.EMPTY_FEED_WITH_INTERVAL)
@@ -207,7 +208,7 @@ class TestFeedcache(TestBase):
         stderr.truncate(0); stderr.seek(0, io.SEEK_SET)
 
     @redirected(stderr=True)
-    def test_modified(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_modified(self, stdout: io.StringIO, stderr: io.StringIO):
         """ Modified feeds are updated """
         self.set_config(data.EMPTY_FEED_WITH_FORCE)
         rc = feedcache.main(TEST_ARGS)
@@ -228,7 +229,7 @@ class TestFeedcache(TestBase):
                 assert_feed=lambda name, _state: self.assertTrue((TEST_TMP / f"{name}.previous").exists()))
 
     @redirected(stderr=True)
-    def test_modified_with_ignore(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_modified_with_ignore(self, stdout: io.StringIO, stderr: io.StringIO):
         """ Modified feeds with ignored changes are not updated """
         self.set_config(data.EMPTY_FEED_WITH_FORCE)
         rc = feedcache.main(TEST_ARGS)
@@ -243,7 +244,7 @@ class TestFeedcache(TestBase):
                 assert_feed=lambda name, _state: self.assertFalse((TEST_TMP / f"{name}.previous").exists()))
 
     @redirected(stderr=True)
-    def test_dry_run(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_dry_run(self, stdout: io.StringIO, stderr: io.StringIO):
         """ Unchanged feeds are not updated """
         self.set_config(data.EMPTY_FEED)
         rc = feedcache.main(TEST_ARGS + ["--dry-run"])
@@ -263,7 +264,7 @@ class TestCurl(TestBase):
         self.assertSimpleResult(rc)
 
     @redirected(stdout=True, stderr=True)
-    def test_excplicit(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_excplicit(self, stdout: io.StringIO, stderr: io.StringIO):
         """ curl downloader is configured in config file """
         self.set_config(data.EMPTY_FEED_WITH_CURL)
         rc = feedcache.main(TEST_ARGS)
@@ -277,7 +278,7 @@ class TestParallel(TestBase):
     SAMPLE          = data.MISSING_FEED_FILE["feeds"][0]
     EXPECTED_FACTOR = float(NUM_WORKERS) / float(NUM_FEEDS) * 1.333 # probably even less
 
-    feedcache_download = feedcache.download
+    feedcache_download: Callable[..., None] = feedcache.download
 
     def setUp(self):
         super().setUp()

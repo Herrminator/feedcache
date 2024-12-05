@@ -2,7 +2,8 @@ import sys, io, os, unittest, builtins, json, shutil, copy, functools, logging, 
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 from contextlib import redirect_stdout, redirect_stderr
-from typing import Iterable
+from typing import Callable, Iterable, List, Union, cast
+from types import ModuleType
 from .. import feedcache, common
 
 TEST_OUTPUT     = Path(__file__).parent.resolve() / 'data' / 'output'
@@ -53,8 +54,8 @@ class TestBase(unittest.TestCase):
             json.dump(data, f)
 
     def assertSimpleResult(self, rc,
-                           feed_rc_expected=0, files_expected=None, states_expected=None, rc_expected=0,
-                           assert_overall : list[callable]=[], assert_feed=[], state_file_expected=True):
+                           feed_rc_expected: Union[int, List[int]]=0, files_expected=None, states_expected=None, rc_expected=0,
+                           assert_overall : Union[List[Callable], Callable]=[], assert_feed=[], state_file_expected=True):
         if files_expected is None: files_expected = len(self.data.get("feeds", []))
         if states_expected is None: states_expected = len(self.data.get("feeds", []))
         if not isinstance(feed_rc_expected, (list, tuple)): feed_rc_expected = [ feed_rc_expected ]
@@ -148,4 +149,4 @@ class Run(unittest.TestProgram): # pragma: nocover
             print("feedcache_tests is missing some dependencies.\n    Please re-install with `pip install feedcache[tests]` or `pipx install feedcache[tests]`.", file=sys.stderr)
             sys.exit(2)
         kwargs.pop("module", None)
-        super().__init__(module=self, *args, **kwargs)
+        super().__init__(module=cast(ModuleType, self), *args, **kwargs)

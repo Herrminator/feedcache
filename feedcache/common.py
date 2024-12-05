@@ -1,8 +1,8 @@
 import sys, re, logging
 from .constants import * # @UnusedWildImport
+from typing import Any, Callable, List, Optional, Tuple
 
 LOGGER = logging.getLogger("feedcache")
-
 
 class Feed(object):
     def __init__(self, name, url, interval=ALWAYS,
@@ -29,13 +29,21 @@ class Feed(object):
         return "Feed<{0.url},{0.out}>".format(self)
 
 class AttrDict(dict):
+    get: Callable[..., Any]
     def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__dict__ = self
-    def __getattr__(self, name): return self.get(name)
+    def __getattr__(self, name: str) -> Any: return self.get(name)
 
-class Config(AttrDict): pass
-class State(AttrDict):  pass
+class Config(AttrDict):
+    feedlist: Optional[List[Feed]]
+    disabled: bool
+class State(AttrDict):
+    last: str
+    etag: str
+
+DownloaderResult = Tuple[int, str, Optional[str]]
+DownloaderFunc   = Callable[[Feed, Config, State, Optional[logging.Logger]], DownloaderResult]
 
 def ensure_state(state, feed):
     fs = state.get(feed.name)

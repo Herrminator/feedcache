@@ -41,7 +41,7 @@ class TestErrors(TestBase):
             feedcache.requests_dl = requests_dl
 
     @redirected(stderr=True)
-    def test_feedparser_missing(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_feedparser_missing(self, stdout: io.StringIO, stderr: io.StringIO):
         """ feed verification failure """
         with patch.object(builtins, "__import__", new=mock_import_error(["feedparser"])):
             self.set_config(data.INVALID_FEED)
@@ -63,7 +63,7 @@ class TestErrors(TestBase):
 
     @redirected(stderr=True)
     @patch("feedparser.parse", name="mock_parser")
-    def test_verify_exception(self, mock_parser: MagicMock, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_verify_exception(self, mock_parser: MagicMock, stdout: io.StringIO, stderr: io.StringIO):
         """ feed verification exception """
         mock_parser.side_effect = InterruptedError(42)
         self.set_config(data.INVALID_FEED)
@@ -71,7 +71,7 @@ class TestErrors(TestBase):
         self.assertSimpleResult(rc, constants.ERR_FEED_VERIFICATION, files_expected=0)
 
     @redirected(stderr=True)
-    def test_invalid_downloader(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_invalid_downloader(self, stdout: io.StringIO, stderr: io.StringIO):
         """ invalid downloader module """
         self.set_config(data.EMPTY_FEED_WITH_NATIVE_DL)
         rc = feedcache.main(TEST_ARGS)
@@ -87,7 +87,7 @@ class TestErrors(TestBase):
 
     @redirected(stderr=True)
     @patch("requests.Session", name="mock_session")
-    def test_unexpected_request_error(self, mock_session: MagicMock, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_unexpected_request_error(self, mock_session: MagicMock, stdout: io.StringIO, stderr: io.StringIO):
         """ unknown error from requests """
         mock_session.side_effect = InterruptedError(42)
         self.set_config(data.EMPTY_FEED)
@@ -100,7 +100,7 @@ class TestErrors(TestBase):
 @patch.object(feedcache, "requests_dl", new=None)
 class TestCurlErrors(TestBase):
     @redirected(stderr=True)
-    def test_missing_feed_file(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_missing_feed_file(self, stdout: io.StringIO, stderr: io.StringIO):
         """ curl works with missing local files """
         self.set_config(data.MISSING_FEED_FILE)
         rc = feedcache.main(TEST_ARGS)
@@ -109,7 +109,7 @@ class TestCurlErrors(TestBase):
 
     @unittest.skipIf(IS_OFFLINE, "FEEDCACHE_TEST_OFFLINE=true")
     @redirected(stderr=True)
-    def test_invalid_server(self, stdout: io.StringIO=None, stderr: io.StringIO=None): # pragma: offline-nocover
+    def test_invalid_server(self, stdout: io.StringIO, stderr: io.StringIO): # pragma: offline-nocover
         """ invalid server address """
         self.set_config(data.INVALID_SERVER)
         rc = feedcache.main(TEST_ARGS)
@@ -117,7 +117,7 @@ class TestCurlErrors(TestBase):
                 assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(Failed to connect to host|Operation timeout|unknown error (7|28))"))
 
     @redirected(stderr=True)
-    def test_no_downloader(self, stdout: io.StringIO=None, stderr: io.StringIO=None):
+    def test_no_downloader(self, stdout: io.StringIO, stderr: io.StringIO):
         """ no downloader module """
         self.set_config(data.EMPTY_FEED)
         rc = feedcache.main(TEST_ARGS + ["--curl="])
@@ -137,8 +137,8 @@ class TestCoverage(TestBase):
             from .. import requests_dl # make sure, our `pathlib`-hack is loaded
             from pathlib import Path
             uri = TEST_STATE.as_uri()
-            with self.assertRaisesRegex(ValueError, "file:"): Path.from_uri(str(TEST_STATE))
-            with self.assertRaisesRegex(ValueError, "absolute"): Path.from_uri("file:./relative")
+            with self.assertRaisesRegex(ValueError, "file:"): Path.from_uri(str(TEST_STATE)) # type: ignore[reportAttributeAccessIssue] # REMOVEME: for Python 3.13+
+            with self.assertRaisesRegex(ValueError, "absolute"): Path.from_uri("file:./relative") # type: ignore[reportAttributeAccessIssue]
 
         with self.subTest("lets get 100%"):
             feeds : list[common.Feed] = feedcache.load_feeds(self.data)

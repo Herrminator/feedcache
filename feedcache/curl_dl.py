@@ -1,4 +1,5 @@
 from .common import *
+from typing import Optional, Tuple
 
 #-----------------------------------------------------------------------------
 # Download using 'curl' executable
@@ -21,7 +22,7 @@ def curl_error(rc, cfg):
     else: # pragma: nocover # ... or not.
         return "unknown error {0}".format(rc)
 
-def tmp_downloader(feed, cfg, state, logger=LOGGER):
+def tmp_downloader(feed: Feed, cfg: Config, state: State, logger: Optional[logging.Logger]=LOGGER)  -> DownloaderResult:
     import subprocess
     newer   = [ "--time-cond", feed.out ]         if os.path.isfile(feed.out) else []
     agent   = [ "--user-agent", feed.useragent ]  if feed.useragent else []

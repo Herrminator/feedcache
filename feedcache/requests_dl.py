@@ -1,7 +1,12 @@
-import requests, re, time
+import re, time
+import requests, requests.adapters
 
+from http.cookiejar import MozillaCookieJar
+from requests.sessions import RequestsCookieJar
+from urllib3.response import BaseHTTPResponse
 from .common   import *
 from .constants import *
+from typing import Optional, Type, cast
 
 FILE_ETAG_PATTERN = re.compile(r'W/"([\d.]+)"')
 
@@ -18,7 +23,7 @@ def log_response(log, feed, rsp):
 #-----------------------------------------------------------------------------
 # Download temporary feed file using Python requests
 #-----------------------------------------------------------------------------
-def tmp_downloader(feed, cfg, state, log=LOGGER):
+def tmp_downloader(feed: Feed, cfg: Config, state: State, log: Optional[logging.Logger]=LOGGER) -> DownloaderResult:
     import http.cookiejar
 
     def mod_time(fname):
@@ -41,7 +46,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
 
     try:
         sess = requests.Session()
-        sess.cookies = cookies
+        sess.cookies = cast(RequestsCookieJar, cookies)
 
         if feed.url.startswith("file://"): # pragma: offline-nobranch # GitHub CI doesn't have online access
             sess.mount("file://", LocalFileAdapter())
@@ -55,7 +60,7 @@ def tmp_downloader(feed, cfg, state, log=LOGGER):
         rsp.raise_for_status()
         log_response(log, feed, rsp)
 
-        if sess.cookies is not None: sess.cookies.save(feed.cookies)
+        if sess.cookies is not None: cast(MozillaCookieJar, sess.cookies).save(feed.cookies)
 
         if   rsp.headers.get("ETag"): fstate.etag = rsp.headers["ETag"]
         elif fstate.etag: del fstate.etag
@@ -85,12 +90,12 @@ import io
 
 # https://stackoverflow.com/a/22989322/10545609
 class LocalFileAdapter(requests.adapters.HTTPAdapter):
-    def build_response_from_file(self, request: requests.Request):
-            file_path : Path = Path.from_uri(request.url)
+    def build_response_from_file(self, request: requests.PreparedRequest):
+            file_path : Path = Path.from_uri(request.url) # type: ignore # see below, REMOVEME: Python 3.13+
             if file_path.exists():
-                etag = request.headers.get("If-None-Match")
-                if etag is not None:
-                    m = FILE_ETAG_PATTERN.match(etag)
+                etag_hdr, etag = request.headers.get("If-None-Match"), None
+                if etag_hdr is not None:
+                    m = FILE_ETAG_PATTERN.match(etag_hdr)
                     if m: etag = float(m.group(1))
                 if etag is None or file_path.stat().st_mtime > etag:
                     with open(file_path, 'rb') as file:
@@ -99,9 +104,10 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
                 else:
                     buff = bytearray(b"")
                 resp = LocalFileAdapter.Resp(buff, headers={ "ETag": f'W/"{file_path.stat().st_mtime}"'})
-                r = self.build_response(request, resp)
+                r = self.build_response(request, cast(BaseHTTPResponse, resp))
             else:
-                r = self.build_response(request, LocalFileAdapter.Resp(b"Not found!", 404))
+                resp = LocalFileAdapter.Resp(b"Not found!", 404)
+                r = self.build_response(request, cast(BaseHTTPResponse, resp))
             return r
 
     def send(self, request, stream=False, timeout=None,
@@ -114,16 +120,16 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
         def __init__(self, stream, status=200, headers=None):
                 self.status = status
                 self.headers = headers or {}
-                self.reason = requests.status_codes._codes.get(
+                self.reason = requests.status_codes._codes.get( # type: ignore
                         status, ['']
                 )[0].upper().replace('_', ' ')
-                io.BytesIO.__init__(self, stream)
+                super().__init__(stream)
 
         @property
         def _original_response(self): return self
         @property
         def msg(self): return self
-        def read(self, chunk_size, **kwargs): return io.BytesIO.read(self, chunk_size)
+        def read(self, chunk_size, /, **kwargs): return io.BytesIO.read(self, chunk_size)
         def info(self): return self # pragma: nobranch
         def get_all(self, name, default):
                 result = self.headers.get(name)
@@ -133,11 +139,11 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
         def release_conn(self): self.close() # pragma: nobranch
 
     try: # REMOVEME # Only in Python 3.13+ 
-        from_uri = Path.from_uri
+        from_uri = Path.from_uri # type: ignore
     except AttributeError: # pragma: py-gte-313-nocover
         # https://github.com/python/cpython/pull/107640/files
-        @classmethod
-        def from_uri(cls, uri):
+        @staticmethod
+        def from_uri(uri: str):
                 """Return a new path from the given 'file' URI."""
                 if not uri.startswith('file:'): raise ValueError(f"URI does not start with 'file:': {uri!r}")
                 path = uri[5:]
@@ -146,7 +152,7 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
                 if path[:3] == '///' or (path[:1] == '/' and path[2:3] in ':|'): path = path[1:]
                 if path[1:2] == '|': path = path[:1] + ':' + path[2:]
                 from urllib.parse import unquote_to_bytes
-                path = cls(os.fsdecode(unquote_to_bytes(path)))
+                path = Path(os.fsdecode(unquote_to_bytes(path)))
                 if not path.is_absolute(): raise ValueError(f"URI is not absolute: {uri!r}")
                 return path
-        Path.from_uri = from_uri
+        Path.from_uri = from_uri # type: ignore[reportAttributeAccessIssue]
