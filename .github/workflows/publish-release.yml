@@ -20,7 +20,8 @@ jobs:
         run: |
           sed -nr 's/^\s*__version__\s*=\s*"(.*?)".*/version=\1/p' "feedcache/constants.py" >> $GITHUB_OUTPUT
           echo "ref_name=$(basename ${{ github.ref }})" >> $GITHUB_OUTPUT
-          if echo "${{ github.ref }}" | grep -iP '\.(test|alpha|beta|rc)'; then
+          # https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers
+          if echo "${{ github.ref }}" | grep -iP '[0-9](a|b|rc|\.dev)[0-9]'; then
               echo "prerelease=true" >> $GITHUB_OUTPUT
           else
               echo "prerelease=false" >> $GITHUB_OUTPUT
