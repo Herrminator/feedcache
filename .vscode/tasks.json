@@ -34,7 +34,6 @@
 			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "coverage", "xml", ],
-            "dependsOn": [ "generate coverage db" ],
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
 			"problemMatcher": [],
 			"presentation": {
@@ -47,7 +46,6 @@
 			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "coverage", "json", ],
-            "dependsOn": [ "generate coverage db" ],
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
 			"problemMatcher": [],
 			"presentation": {
@@ -70,7 +68,6 @@
 			"command": "python",
 			"windows": { "command": "${workspaceFolder}/Scripts/python"},
 			"args": [ "-m", "coverage", "report", "--sort=-cover" ],
-            "dependsOn": [ "generate coverage db" ],
 			"icon": { "id": "debug-coverage", "color": "terminal.ansiYellow"},
 			"problemMatcher": [],
 			"presentation": {

@@ -1,8 +1,8 @@
 # Change Log
 
-## 1.6.1 (beta2 status)
-  - [ ] Make unit test data directory configurable.
+## 1.6.1 (rc1 status)
   - [ ] Unit tests for online feeds.
+  - [X] Make unit test data directory configurable by environment variable.
   - [X] Check that output- and temporary directories are *not* the same.
   - [X] Unit tests for parallel execution.
   - [X] Unit tests for intervals (using `freezegun`).

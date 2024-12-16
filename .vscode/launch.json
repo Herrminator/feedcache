@@ -64,7 +64,7 @@
                 // see settings.json for unittests
                 "-t", ".",
                 "-s", ".",
-                "-k", "test_skip_and_retry_failed"
+                "-k", "test_output_tmp_same"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
@@ -75,7 +75,8 @@
             "type": "debugpy",
             "request": "launch",
             "module": "feedcache.test",
-            "args": [],
+            "env": { "FEEDCACHE_TEST_OUTPUT": "${workspaceFolder}/tmp/output" },
+            "args": [ "-b", "-v" ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false

@@ -6,7 +6,8 @@ from typing import Callable, Iterable, List, Union, cast
 from types import ModuleType
 from .. import feedcache, common
 
-TEST_OUTPUT     = Path(__file__).parent.resolve() / 'data' / 'output'
+TEST_OUTPUT     = (Path(__file__).parent / 'data' / 'output' if os.environ.get("FEEDCACHE_TEST_OUTPUT") is None
+                        else Path(os.environ["FEEDCACHE_TEST_OUTPUT"])).resolve()
 TEST_CONFIG     = TEST_OUTPUT / 'feedcache.json'
 TEST_FEEDS      = TEST_OUTPUT / 'feeds'
 TEST_TMP        = TEST_OUTPUT / 'tmp'
