@@ -1,7 +1,6 @@
 import sys, io, re, copy, builtins, json
-from contextlib import redirect_stderr
 from .  import (
-    TestBase, TEST_ARGS, TEST_FEEDS, TEST_STATE, TEST_CURL, CURL_INSTALLED, IS_WINDOWS, IS_OFFLINE,
+    TestBase, TEST_ARGS, TEST_STATE, TEST_CURL, TEST_TMP, CURL_INSTALLED, IS_WINDOWS, IS_OFFLINE,
     data, patch, mock_import_error, redirected,
     unittest, patch, MagicMock
 )
@@ -123,6 +122,13 @@ class TestCurlErrors(TestBase):
         rc = feedcache.main(TEST_ARGS + ["--curl="])
         self.assertSimpleResult(rc, constants.ERR_UNKNOWN_EXCEPTION, files_expected=0, states_expected=0,
             assert_overall=lambda: self.assertRegex(stderr.getvalue(), "(?s)Continuing after exception.*NotImplementedError"))
+
+    @redirected(stderr=True)
+    def test_output_tmp_same(self, stdout: io.StringIO, stderr: io.StringIO):
+        self.set_config(data.EMPTY_FEED)
+        rc = feedcache.main(TEST_ARGS + [f"--outdir={TEST_TMP}", f"--tmpdir={TEST_TMP}"])
+        self.assertSimpleResult(rc, rc_expected=common.ERR_CONFIGURATION, files_expected=0, state_file_expected=False,
+            assert_overall=lambda: self.assertRegex(stderr.getvalue(), "cannot be the same"))
 
 
 class TestCoverage(TestBase):

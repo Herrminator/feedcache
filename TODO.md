@@ -1,5 +1,7 @@
 # TO DO List after 1.6.0
 
+- [X] Check that output- and temporary directories are *not the same*.
+- [ ] Make unit test data directory configurable.
 - [ ] Unit tests for important online feeds.
 - [X] Unit tests for parallel execution.
 - [X] Unit tests for intervals (using `freezegun`).

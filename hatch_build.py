@@ -1,5 +1,5 @@
-import re
-from hatchling.metadata.plugin.interface import MetadataHookInterface
+import re, sys
+from hatchling.metadata.plugin.interface import MetadataHookInterface # type: ignore # only available during build
 
 CHANGE_PATT = re.compile(r'^## Changes.*CHANGELOG\.md\)', re.M | re.S)
 HELP_FILE = "feedcache-help.md"
@@ -16,11 +16,13 @@ HELP_TEMPLATE = """### Command Line Help
 def get_help():
   import sys; sys.path = [ "." ] + sys.path
   import io, feedcache.feedcache, contextlib
+  from feedcache.constants import HOME
   helpout = io.StringIO()
   with contextlib.redirect_stdout(helpout):
       try: feedcache.feedcache.main(["--help"])
       except SystemExit: pass
-  return helpout.getvalue()
+  hlp = helpout.getvalue().replace(HOME, "${HOME}")
+  return hlp
 
 class CustomHook(MetadataHookInterface):
 
@@ -31,7 +33,7 @@ class CustomHook(MetadataHookInterface):
         with open("README.md", "r") as fh, open("CHANGELOG.md") as cl:
             readme = fh.read()
             readme = CHANGE_PATT.sub(cl.read(), readme)
-            readme = HELP_PATT.sub(help, readme)
+            readme = HELP_PATT.sub(re.escape(help), readme)
             meta["readme"] = {
                 "content-type": "text/markdown",
                 "text": readme

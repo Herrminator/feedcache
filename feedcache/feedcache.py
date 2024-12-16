@@ -1,10 +1,10 @@
 #!/usr/bin/python3 -u
 import sys, os, re, shutil, argparse, threading, queue, json, time, logging, contextlib
-from types import FunctionType
+from pathlib import Path
 try:  from . import requests_dl
 except ImportError: requests_dl = None
 from . import (curl_dl, filediff)
-from typing import Callable, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from .common    import * # @UnusedWildImport
 from .constants import * # @UnusedWildImport
@@ -221,18 +221,25 @@ def update_config(cfg: Config, args: argparse.Namespace) -> None:
     for name, val in vars(args).items():
         cfg[name] = val if val is not None else cfg.get(name, CFG_DEFAULTS.get(name))
 
+def verify_config(cfg: Config) -> bool:
+    ok = True
+    if Path(cfg.tmpdir).samefile(Path(cfg.outdir)):
+        LOGGER.error(f"'--outdir' and '--tmpdir' cannot be the same ('{str(Path(cfg.outdir))}')!")
+        ok = False
+    return ok
+
 #-----------------------------------------------------------------------------
 #
 #-----------------------------------------------------------------------------
 def main(argv=sys.argv[1:]):
-    ap = argparse.ArgumentParser(prog="feedcache")
+    ap = argparse.ArgumentParser(prog="feedcache") # cannot use argparse.ArgumentDefaultsHelpFormatter, because default args would overwrite config
     ap.add_argument(      "feedlist",    nargs="*")
-    ap.add_argument("-c", "--config",    default=os.path.join(HOME, "web", "feedcache.json"))
-    ap.add_argument("-o", "--outdir",    default=None)
-    ap.add_argument("-t", "--tmpdir",    default=None)
-    ap.add_argument("-u", "--useragent", default=None)
-    ap.add_argument("-p", "--parallel",  default=None,  type=int, help=f"Default: {NUM_THREADS}")
-    ap.add_argument("-T", "--timeout",   default=None,  type=int, help="Default: none")
+    ap.add_argument("-c", "--config",    default=CFG_DEFAULT_FILE, help=rf"Default: {CFG_DEFAULT_FILE}")
+    ap.add_argument("-o", "--outdir",    default=None,  help=f"Default: {CFG_DEFAULTS['outdir']}")
+    ap.add_argument("-t", "--tmpdir",    default=None,  help=f"Default: {CFG_DEFAULTS['tmpdir']}")
+    ap.add_argument("-u", "--useragent", default=None,  help=f"Default: {CFG_DEFAULTS['useragent']}")
+    ap.add_argument("-p", "--parallel",  default=None,  type=int, help=f"Default: {CFG_DEFAULTS['parallel']}")
+    ap.add_argument("-T", "--timeout",   default=None,  type=int, help=f"Default: {CFG_DEFAULTS['timeout']}")
     ap.add_argument("-V", "--verify",    default=False, action="store_true", help="Verify feed data using feedparser")
     ap.add_argument("-f", "--force",     default=False, action="store_true", help="Force download of up-to-date feeds")
     ap.add_argument("-v", "--verbose",   default=False, action="store_true")
@@ -250,6 +257,9 @@ def main(argv=sys.argv[1:]):
         cfg: Config = json.load(config, object_pairs_hook=Config)
 
     update_config(cfg, args)
+
+    if not verify_config(cfg):
+        return ERR_CONFIGURATION
 
     feeds = load_feeds(cfg)
     state = load_state(cfg)

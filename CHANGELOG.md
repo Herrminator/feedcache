@@ -1,7 +1,9 @@
 # Change Log
 
-## 1.6.1 (beta1 status)
-  - [ ] Unit tests for online feeds
+## 1.6.1 (beta2 status)
+  - [ ] Make unit test data directory configurable.
+  - [ ] Unit tests for online feeds.
+  - [X] Check that output- and temporary directories are *not* the same.
   - [X] Unit tests for parallel execution.
   - [X] Unit tests for intervals (using `freezegun`).
   - [X] Package test runner as extra (`pip install feedcache[tests]`).
