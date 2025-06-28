@@ -240,7 +240,7 @@ def main(argv=sys.argv[1:]):
     ap.add_argument("-u", "--useragent", default=None,  help=f"Default: {CFG_DEFAULTS['useragent']}")
     ap.add_argument("-p", "--parallel",  default=None,  type=int, help=f"Default: {CFG_DEFAULTS['parallel']}")
     ap.add_argument("-T", "--timeout",   default=None,  type=int, help=f"Default: {CFG_DEFAULTS['timeout']}")
-    ap.add_argument("-V", "--verify",    default=False, action="store_true", help="Verify feed data using feedparser")
+    ap.add_argument("-V", "--verify",    default=None,  action="store_true", help="Verify feed data using feedparser")
     ap.add_argument("-f", "--force",     default=False, action="store_true", help="Force download of up-to-date feeds")
     ap.add_argument("-v", "--verbose",   default=False, action="store_true")
     ap.add_argument("-d", "--dry-run",   default=False, action="store_true", help="Don't create output / state files")
