@@ -1,6 +1,7 @@
 # Change Log
 
-## 1.6.1 (rc1 status)
+## 1.6.1 (rc3 status)
+  - [X] Allow "verify" to be set globally in config file.
   - [ ] Unit tests for online feeds.
   - [X] Make unit test data directory configurable by environment variable.
   - [X] Check that output- and temporary directories are *not* the same.
