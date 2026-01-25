@@ -22,16 +22,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 3.9 for Debian bullseye, 3.14.x as future version
-        python-version: [ "3.9", "${{ vars.FEEDCACHE_PYTHON_VERSION }}", "3.14.0-alpha.1"]
+        # 3.11 for Debian bookworm, 3.15.x as future version
+        python-version: [ "3.11", "${{ vars.FEEDCACHE_PYTHON_VERSION }}", "3.15-dev"]
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Say Hello
@@ -57,9 +57,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python ${{ vars.FEEDCACHE_PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ vars.FEEDCACHE_PYTHON_VERSION }}
       - name: Install dependencies
@@ -74,7 +74,7 @@ jobs:
           python -m coverage html
           python -m coverage report --fail-under=90 --format=markdown | tee -a $GITHUB_STEP_SUMMARY
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-reports
           path: tmp/**
