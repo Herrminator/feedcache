@@ -9,8 +9,9 @@
       <excludeFolder url="file://$MODULE_DIR$/tmp/CI" />
       <excludeFolder url="file://$MODULE_DIR$/tmp/coverage.html" />
       <excludeFolder url="file://$MODULE_DIR$/tmp/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (feedcache)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
