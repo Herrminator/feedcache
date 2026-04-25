@@ -1,0 +1,44 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredTypes" value="java.util.stream.Stream,java.util.stream.IntStream,java.util.stream.LongStream,java.util.stream.DoubleStream,java.io.ByteArrayOutputStream,java.io.ByteArrayInputStream,java.io.StringBufferInputStream,java.io.CharArrayWriter,java.io.CharArrayReader,java.io.StringWriter,java.io.StringReader,java.util.Formatter,java.util.Scanner,org.springframework.context.ConfigurableApplicationContext,io.micronaut.context.ApplicationContext,de.innovas.iaf.base_server.dbaccess.QueryResult" />
+    </inspection_tool>
+    <inspection_tool class="CdiInjectionPointsInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="CheckTagEmptyBody" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="CssInvalidPropertyValue" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="DanglingJavadoc" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="DuplicatedBeanNamesInspection" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="JavadocDeclaration" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="JavadocReference" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="PyCompatibilityInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ourVersions">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="2.7" />
+            <item index="1" class="java.lang.String" itemvalue="3.14" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnreachableCodeInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="pysqlite42" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SequencedCollectionMethodCanBeUsed" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="SpringBeanAttributesInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="SpringBeanNameConventionInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="SpringJavaInjectionPointsAutowiringInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="SpringJavaStaticMembersAutowiringInspection" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="ThrowablePrintStackTrace" enabled="true" level="WARNING" enabled_by_default="true">
+      <scope name="Tests" level="WEAK WARNING" enabled="true" editorAttributes="INFO_ATTRIBUTES" />
+    </inspection_tool>
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+    </inspection_tool>
+  </profile>
+</component>
