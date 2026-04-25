@@ -74,7 +74,7 @@ jobs:
           python -m coverage html
           python -m coverage report --fail-under=90 --format=markdown | tee -a $GITHUB_STEP_SUMMARY
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-reports
           path: tmp/**
