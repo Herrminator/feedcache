@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.6.1 (rc3 status)
+## 1.6.1 (rc5 status)
   - [X] Allow "verify" to be set globally in config file.
   - [ ] Unit tests for online feeds.
   - [X] Make unit test data directory configurable by environment variable.
@@ -8,7 +8,10 @@
   - [X] Unit tests for parallel execution.
   - [X] Unit tests for intervals (using `freezegun`).
   - [X] Package test runner as extra (`pip install feedcache[tests]`).
-  - [ ] Make requests module obligatory, remove cURL code and all those awkward unit tests for that.
+  - [ ] Make `requests` module obligatory ~~remove cURL code and all those awkward unit tests for that.~~
+  - [X] Make downloader configurable per feed (e.g. to use cURL for HTTP/2)
+  - [ ] Add configurable options for cURL (and other) downloaders (`"dlopts"`).
+  - [ ] Use [HTTPX](https://www.python-httpx.org/) as `requests` alternative / replacement
   - [ ] Proper class structure for main module
   - [ ] Replace `str.format(...)` with format strings
   - [ ] Experiment with an HTTP server for tests (e.g. `pytest-httpserver`) or properly  

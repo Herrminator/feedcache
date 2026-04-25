@@ -104,17 +104,17 @@ def current(feed: Feed, cfg, state):
 #-----------------------------------------------------------------------------
 # we always prefer the requests module, but commandline curl is OK
 #-----------------------------------------------------------------------------
-def select_tmp_downloader(cfg: Config) -> DownloaderFunc:
+def select_tmp_downloader(feed: Feed, cfg: Config) -> DownloaderFunc:
     tmp_downloader: DownloaderFunc
     # select default downloader
     if requests_dl: tmp_downloader = requests_dl.tmp_downloader
     elif cfg.curl:  tmp_downloader = curl_dl.tmp_downloader
     else:           tmp_downloader = tmp_download_native
 
-    if cfg.downloader:
+    if feed.downloader:
         tmp_downloader = { "requests": getattr(requests_dl, "tmp_downloader", None),
                                              "curl":     curl_dl.tmp_downloader
-                                         }.get(cfg.downloader, tmp_download_native)
+                                         }.get(feed.downloader, tmp_download_native)
     return tmp_downloader
 
 #-----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ def download(feed: Feed, cfg: Config, state: State):
     logger, loghandler = get_feed_logger(feed, cfg)
 
     with contextlib.closing(loghandler):
-        downloader = select_tmp_downloader(cfg)
+        downloader = select_tmp_downloader(feed, cfg)
 
         rc, err, data = downloader(feed, cfg, state, logger)
 
@@ -200,7 +200,9 @@ def load_feeds(cfg: Config) -> List[Feed]:
                                         timeout=f.get("timeout", cfg.timeout),
                                         ignore=f.get("ignore"),
                                         verify=f.get("verify", cfg.verify),
-                                        proxies=f.get("proxies", cfg.proxies)) ]
+                                        proxies=f.get("proxies", cfg.proxies),
+                                        downloader=f.get("downloader", cfg.downloader),
+                                        dlopts=f.get("dlopts", cfg.dlopts)) ]
     return feeds
 
 def load_state(cfg: Config) -> State:
@@ -245,7 +247,7 @@ def main(argv=sys.argv[1:]):
     ap.add_argument("-v", "--verbose",   default=False, action="store_true")
     ap.add_argument("-d", "--dry-run",   default=False, action="store_true", help="Don't create output / state files")
     ap.add_argument(      "--version",   default=False, action="version", version="%(prog)s " + VERSION_STRING)
-    ap.add_argument(      "--curl",      default="curl")
+    ap.add_argument(      "--curl",      default=None,  help=f"Default: {CFG_DEFAULTS['curl']}")
 
     args = ap.parse_args(argv)
 

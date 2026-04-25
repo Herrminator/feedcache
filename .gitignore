@@ -7,3 +7,8 @@
 /pyvenv.cfg
 **/__pycache__
 .env.python
+*.bak
+*.del
+*.org
+*.ren
+*.tmp

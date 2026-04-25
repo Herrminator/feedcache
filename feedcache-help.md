@@ -2,8 +2,9 @@
 
 <!-- Generated content. Do NOT modify! -->
 ```
-usage: feedcache [-h] [-c CONFIG] [-o OUTDIR] [-t TMPDIR] [-u USERAGENT] [-p PARALLEL] [-T TIMEOUT] [-V] [-f] [-v]
-                 [-d] [--version] [--curl CURL]
+usage: feedcache [-h] [-c CONFIG] [-o OUTDIR] [-t TMPDIR] [-u USERAGENT]
+                 [-p PARALLEL] [-T TIMEOUT] [-V] [-f] [-v] [-d] [--version]
+                 [--curl CURL]
                  [feedlist ...]
 
 positional arguments:
@@ -18,7 +19,8 @@ options:
   -t TMPDIR, --tmpdir TMPDIR
                         Default: tmp
   -u USERAGENT, --useragent USERAGENT
-                        Default: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/133.0
+                        Default: Mozilla/5.0 (Windows NT 10.0; Win64; x64;
+                        rv:150.0) Gecko/20100101 Firefox/150.0
   -p PARALLEL, --parallel PARALLEL
                         Default: 8
   -T TIMEOUT, --timeout TIMEOUT
@@ -28,6 +30,6 @@ options:
   -v, --verbose
   -d, --dry-run         Don't create output / state files
   --version             show program's version number and exit
-  --curl CURL
+  --curl CURL           Default: curl
 
 ```

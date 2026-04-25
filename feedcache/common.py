@@ -7,7 +7,8 @@ LOGGER = logging.getLogger("feedcache")
 class Feed(object):
     def __init__(self, name, url, interval=ALWAYS,
                              outdir=None, tmpdir=None,
-                             retry=False, useragent=UA, timeout=None, ignore=None, verify=False, proxies=None):
+                             retry=False, useragent=UA, timeout=None, ignore=None,
+                             verify=False, proxies=None, downloader=None, dlopts=None):
         self.name = name
         self.url  = url
         self.out  = os.path.normpath(os.path.join(outdir if outdir is not None else OUT, name))
@@ -22,6 +23,8 @@ class Feed(object):
         self.ignore   = re.compile(ignore) if ignore else None
         self.verify   = verify
         self.proxies  = proxies
+        self.downloader = downloader
+        self.dlopts     = dlopts
 
     def _json(self): return { "name": self.name, "url": self.url }
 

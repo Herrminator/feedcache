@@ -7,9 +7,10 @@
 - [X] Unit tests for parallel execution.
 - [X] Unit tests for intervals (using `freezegun`).
 - [X] Package test runner as extra.
-- [ ] Make requests module obligatory ~~, remove cURL code and all those awkward unit tests for that~~.
-- [ ] Make cURL configurable per feed.
-- [ ] Add configurable options for cURL downloader (`"curl_opts"`).
+- [ ] Make `requests` module obligatory ~~remove cURL code and all those awkward unit tests for that.~~
+- [X] Make downloader configurable per feed (e.g. to use cURL for HTTP/2)
+- [ ] Add configurable options for cURL (and other) downloaders (`"dlopts"`).
+- [ ] Use [HTTPX](https://www.python-httpx.org/) as `requests` alternative / replacement
 - [ ] Proper class structure for main module
 - [x] ~~Use `asyncio` instead of threads?~~ `requests` doesn't really support `asyncio`. 
       Maybe in a future version, we'll use `aiohttp`. But for now, I don't want to re-write.
