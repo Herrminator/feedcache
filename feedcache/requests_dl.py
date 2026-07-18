@@ -2,7 +2,7 @@ import re, time
 import requests, requests.adapters
 
 from http.cookiejar import MozillaCookieJar
-from requests.sessions import RequestsCookieJar
+from requests.sessions import RequestsCookieJar # type: ignore[reportPrivateImportUsage]
 from urllib3.response import BaseHTTPResponse
 from .common   import *
 from .constants import *
@@ -66,7 +66,7 @@ def tmp_downloader(feed: Feed, cfg: Config, state: State, log: Optional[logging.
         elif fstate.etag: del fstate.etag
 
     except requests.HTTPError as exc:
-        rc = exc.response.status_code
+        rc = exc.response.status_code if exc.response is not None else 500
         errtext = "{0}".format(str(exc))
         log_response(log, feed, exc.response)
         log_error(log, feed, exc)
@@ -95,7 +95,7 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
             if file_path.exists():
                 etag_hdr, etag = request.headers.get("If-None-Match"), None
                 if etag_hdr is not None:
-                    m = FILE_ETAG_PATTERN.match(etag_hdr)
+                    m = FILE_ETAG_PATTERN.match(etag_hdr) # type: ignore[reportCallIssue]
                     if m: etag = float(m.group(1))
                 if etag is None or file_path.stat().st_mtime > etag:
                     with open(file_path, 'rb') as file:
@@ -126,10 +126,13 @@ class LocalFileAdapter(requests.adapters.HTTPAdapter):
                 super().__init__(stream)
 
         @property
-        def _original_response(self): return self
+        def _original_response(self):
+            return self
         @property
-        def msg(self): return self
-        def read(self, chunk_size, /, **kwargs): return io.BytesIO.read(self, chunk_size)
+        def msg(self):
+            return self
+        def read(self, chunk_size, /, **kwargs):
+            return io.BytesIO.read(self, chunk_size)
         def info(self): return self # pragma: nobranch
         def get_all(self, name, default):
                 result = self.headers.get(name)

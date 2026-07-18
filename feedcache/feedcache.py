@@ -10,7 +10,7 @@ from .common    import * # @UnusedWildImport
 from .constants import * # @UnusedWildImport
 from .constants import __version__
 
-VERSION_REQUESTS = f", using requests {requests_dl.requests.__version__}" if requests_dl else ""
+VERSION_REQUESTS = f", using requests {requests_dl.requests.__version__}" if requests_dl else "" # type: ignore[reportPrivateImportUsage]
 VERSION_STRING   = f"{__version__}{VERSION_REQUESTS}, Python {sys.version}"
 
 #-----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ def last(feed: Feed, state: State, ts: Union[str,float,None]=None):
         if fs is None: fs = State(); state[feed.name] = fs
         fs.last = ts
         if "_last" in fs: del fs["_last"] # TODO: REMOVEME: legacy
-    t = fs.get("last", 0.0)
+    t = fs.get("last", 0.0) # type: ignore[reportOptionalMemberAccess]
     if isinstance(t, str): t = time.mktime(time.strptime(t, TS_FMT))
     return t
 

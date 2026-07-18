@@ -26,7 +26,8 @@ class Feed(object):
         self.downloader = downloader
         self.dlopts     = dlopts
 
-    def _json(self): return { "name": self.name, "url": self.url }
+    def _json(self):
+        return { "name": self.name, "url": self.url }
 
     def __str__(self):
         return "Feed<{0.url},{0.out}>".format(self)
@@ -36,7 +37,8 @@ class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__dict__ = self
-    def __getattr__(self, name: str) -> Any: return self.get(name)
+    def __getattr__(self, name: str) -> Any:
+        return self.get(name)
 
 class Config(AttrDict):
     feedlist: Optional[List[Feed]]

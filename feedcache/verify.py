@@ -4,7 +4,8 @@ class VerifyException(Exception):
     def __init__(self, msg, cause=None, parsed=None, code=ERR_FEED_VERIFICATION, *args, **kwargs):
         super(VerifyException, self).__init__(code, msg, cause, parsed, *args, *kwargs)
     @property
-    def code(self): return self.args[0]
+    def code(self):
+        return self.args[0]
     @property
     def msg(self): return self.args[1]
     @property
